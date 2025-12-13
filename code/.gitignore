@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+__pypackages__/
+
+# Build / packaging
+dist/
+build/
+*.egg-info/
+
+# Type checker / linter caches
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.cache/
+
+# Logs
+logs/
+*.log
+
+# Env / secrets
+.env
+.env.*
+**/.env
+**/.env.*
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Generated
+repomix-output.xml
+
+# Docker overrides
+docker-compose.override.yml

@@ -1,0 +1,12 @@
+requests
+feedparser
+trafilatura
+sqlalchemy
+psycopg2-binary
+tenacity
+PyGithub
+lxml
+openai
+python-dotenv
+pytest
+pytest-mock

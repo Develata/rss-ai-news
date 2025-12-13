@@ -1,0 +1,1 @@
+from news_crawler.core.crawler import *  # noqa: F401,F403

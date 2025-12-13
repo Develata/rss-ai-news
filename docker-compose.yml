@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  news_crawler:
+    # 1. 构建配置
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+      
+    container_name: news_crawler
+    restart: unless-stopped
+
+    # 2. 路径映射
+    volumes:
+      - ./code:/app/code:rw
+      - ./logs:/app/logs:rw
+      - ./pytest.ini:/app/pytest.ini:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+    # 3. 环境变量（从本地文件加载，避免把密钥提交到 GitHub）
+    # 复制并填写：./code/.env.example -> ./code/.env
+    env_file:
+      - ./code/.env
+
+    # 仍可在此覆盖少量固定项
+    environment:
+      TZ: Asia/Shanghai
+      NO_PROXY: "127.0.0.1,localhost"
+      PYTHONPATH: /app/code
+      PYTHONUNBUFFERED: "1"
+
+    # 4. 网络模式
+    network_mode: "host"
+    
+    # 5. 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
