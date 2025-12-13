@@ -4,6 +4,7 @@ import os
 import urllib.parse
 from dataclasses import dataclass
 from functools import lru_cache
+from pathlib import Path
 
 
 def _getenv(name: str, default: str | None = None) -> str | None:
@@ -49,7 +50,9 @@ class NetworkSettings:
 
 @dataclass(frozen=True)
 class DatabaseSettings:
+    backend: str
     uri: str | None
+    sqlite_path: str
     host: str | None
     port: int
     user: str | None
@@ -60,6 +63,18 @@ class DatabaseSettings:
     def build_uri(self) -> str | None:
         if self.uri:
             return self.uri
+
+        backend = (self.backend or "postgres").strip().lower()
+        if backend == "sqlite":
+            raw_path = (self.sqlite_path or "./data/news_crawler.db").strip()
+            if raw_path == ":memory:":
+                return "sqlite+pysqlite:///:memory:"
+            path = Path(raw_path).expanduser()
+            if not path.is_absolute():
+                path = (Path.cwd() / path).resolve()
+            # sqlite URI: 绝对路径需要 4 个斜杠
+            return f"sqlite+pysqlite:///{path.as_posix()}"
+
         if not (self.host and self.user and self.password):
             return None
         safe_pass = urllib.parse.quote_plus(self.password)
@@ -119,7 +134,9 @@ def get_settings() -> Settings:
     )
 
     db = DatabaseSettings(
+        backend=_getenv("DB_BACKEND", "postgres") or "postgres",
         uri=_getenv("DB_URI"),
+        sqlite_path=_getenv("DB_SQLITE_PATH", "./data/news_crawler.db") or "./data/news_crawler.db",
         host=_getenv("DB_HOST"),
         port=_getenv_int("DB_PORT", 5432),
         user=_getenv("DB_USER"),

@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from news_crawler.core.config import REPORT_CONFIGS
 from news_crawler.core.database import NewsArticle
+from news_crawler.core.settings import get_settings
 from news_crawler.services.ai_service import get_custom_ai_response
 from news_crawler.services.publisher_service import GitHubPublisher
 
@@ -92,16 +94,17 @@ def generate_md_content(articles, config):
 
 def run_publishing_job(session):
     publisher = GitHubPublisher()
-    published_count = 0
-
+    local_root = (os.getenv("REPORT_LOCAL_DIR") or "./data/news").strip() or "./data/news"
+    local_root_path = Path(local_root)
+    
+    # 1. 准备环境
     tz = ZoneInfo("Asia/Shanghai")
     now = datetime.now(tz)
     current_year = str(now.year)
     current_date_file = now.strftime("%Y%m%d")
-
     time_window = datetime.now(timezone.utc) - timedelta(hours=25)
     
-    # 优化：一次查询获取所有分类的文章，减少数据库往返
+    # 2. 查询数据
     all_articles = (
         session.query(NewsArticle)
         .filter(
@@ -117,36 +120,65 @@ def run_publishing_job(session):
         .all()
     )
     
-    # 按分类分组
+    # 3. 数据分组
     articles_by_category = {}
     for art in all_articles:
         if art.category not in articles_by_category:
             articles_by_category[art.category] = []
-        if len(articles_by_category[art.category]) < 10:  # 每个分类最多10条
+        if len(articles_by_category[art.category]) < 10:
             articles_by_category[art.category].append(art)
+
+    # 4. 生成内容并暂存
+    pending_updates = [] # [{"path": "...", "content": "..."}]
+    generated_titles = []
 
     for category_key, cfg in REPORT_CONFIGS.items():
         try:
             articles = articles_by_category.get(category_key, [])
-
             if articles:
-                logger.info(
-                    f"    ✅ Generating {cfg['title_prefix']} ({len(articles)} items)"
-                )
+                logger.info(f"    🛠️ Generating MD for {cfg['title_prefix']} ({len(articles)} items)...")
+                
                 content = generate_md_content(articles, cfg)
-
                 folder_name = cfg.get("folder", "Other")
                 file_path = f"{folder_name}/{current_year}/{current_date_file}.md"
-
-                publisher.push_markdown(file_path, content)
-                published_count += 1
+                
+                pending_updates.append({
+                    "path": file_path,
+                    "content": content
+                })
+                generated_titles.append(cfg['title_prefix'])
             else:
-                logger.info(
-                    f"    😴 Skipped {cfg['title_prefix']} (No content processed today)"
-                )
+                logger.info(f"    😴 Skipped {cfg['title_prefix']}")
 
         except Exception as e:
             logger.error(f"    ❌ Error generating report for [{category_key}]: {e}")
             continue
 
+    # 5. 本地落盘（与上传后的相同相对路径结构），不影响后续推送
+    if pending_updates:
+        try:
+            for item in pending_updates:
+                rel_path = (item.get("path") or "").lstrip("/\\")
+                out_path = (local_root_path / rel_path).resolve()
+                out_path.parent.mkdir(parents=True, exist_ok=True)
+                out_path.write_text(item.get("content") or "", encoding="utf-8")
+            logger.info(f"💾 本地已保存 {len(pending_updates)} 个 Markdown 到 {local_root_path}")
+        except Exception as e:
+            logger.warning(f"⚠️ 本地保存 Markdown 失败（不影响推送）：{e}")
+
+    # 6. 一次性推送 (One Commit)
+    published_count = len(pending_updates)
+    if published_count > 0:
+        try:
+            # 构造 Commit Message
+            commit_msg = f"🤖 Bot Update: {current_date_file} Report ({', '.join(generated_titles)})"
+            
+            # 调用批量推送
+            publisher.publish_changes(pending_updates, commit_msg)
+            
+        except Exception as e:
+            logger.error(f"❌ Batch Publish Failed: {e}")
+            # 如果推送失败，这里返回 0 以便触发报警
+            return 0
+            
     return published_count

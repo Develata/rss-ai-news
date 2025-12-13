@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Ensure logs directory exists
 mkdir -p /app/logs
+mkdir -p /app/data
 
 # Export environment variables to a file for cron to source
 # This ensures cron jobs can access Docker environment variables

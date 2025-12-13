@@ -16,6 +16,7 @@ services:
     # 2. 路径映射
     volumes:
       - ./logs:/app/logs:rw
+      - ./data:/app/data:rw
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 

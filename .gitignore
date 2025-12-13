@@ -25,11 +25,18 @@ build/
 logs/
 *.log
 
+# Local SQLite data
+data/
+
 # Env / secrets
 .env
 .env.*
 **/.env
 **/.env.*
+
+# Keep example env file in git
+!.env.example
+!**/.env.example
 
 # OS
 .DS_Store

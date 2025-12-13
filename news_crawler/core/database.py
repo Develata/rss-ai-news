@@ -3,6 +3,8 @@ from __future__ import annotations
 import sys
 from datetime import datetime, timezone
 from functools import lru_cache
+from pathlib import Path
+from urllib.parse import urlparse
 
 from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String, Text, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -47,6 +49,32 @@ def get_engine():
             "Database is not configured. Please set DB_URI or (DB_HOST/DB_USER/DB_PASS/DB_PORT)."
         )
 
+    parsed = urlparse(db_uri)
+    is_sqlite = parsed.scheme.startswith("sqlite")
+
+    if is_sqlite:
+        # 尝试创建 SQLite 文件目录（:memory: 不处理）
+        if parsed.path and parsed.path not in ("/", "/:memory:") and ":memory:" not in db_uri:
+            # sqlite 绝对路径通常形如 sqlite:////abs/path.db 或 sqlite+pysqlite:////abs/path.db
+            # urlparse 会把路径放在 .path，去掉前导 '/' 后再当作文件路径处理
+            candidate = parsed.path
+            # 对于 sqlite:////abs/path.db，parsed.path 为 '//abs/path.db'
+            while candidate.startswith("/"):
+                candidate = candidate[1:]
+            if candidate:
+                path = Path("/" + candidate)
+                path.parent.mkdir(parents=True, exist_ok=True)
+
+        engine = create_engine(
+            db_uri,
+            pool_pre_ping=True,
+            connect_args={"check_same_thread": False},
+        )
+        # SQLite 模式下自动建表，实现“开箱即用”
+        Base.metadata.create_all(engine)
+        return engine
+
+    # PostgreSQL / 其他数据库
     return create_engine(
         db_uri,
         pool_size=5,
