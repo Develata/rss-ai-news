@@ -1,4 +1,4 @@
-# 文件路径：/app/code/test/test_infra.py
+# 文件路径：/app/tests/test_infra.py
 import pytest
 import os
 import requests

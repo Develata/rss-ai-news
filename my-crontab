@@ -1,10 +1,10 @@
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 PYTHONUNBUFFERED=1
-PYTHONPATH=/app/code
+PYTHONPATH=/app
 
 # Ingest + AI processing (every 10 minutes)
-*/10 * * * * . /app/.docker_env && cd /app/code && python main_ingest.py >> /app/logs/ingest.log 2>&1
+*/10 * * * * . /app/.docker_env && cd /app && python -m news_crawler ingest >> /app/logs/ingest.log 2>&1
 
 # Daily report publishing (09:00 Shanghai time)
-0 9 * * * . /app/.docker_env && cd /app/code && python main_publish.py >> /app/logs/publish.log 2>&1
+0 9 * * * . /app/.docker_env && cd /app && python -m news_crawler publish >> /app/logs/publish.log 2>&1

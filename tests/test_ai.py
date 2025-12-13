@@ -1,4 +1,4 @@
-# 文件路径：/app/code/test/test_ai.py
+# 文件路径：/app/tests/test_ai.py
 import pytest
 import os
 from unittest.mock import MagicMock

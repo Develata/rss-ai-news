@@ -1,1 +1,0 @@
-from news_crawler.services.email_service import *  # noqa: F401,F403

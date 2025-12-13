@@ -1,1 +1,0 @@
-from news_crawler.services.publisher_service import *  # noqa: F401,F403

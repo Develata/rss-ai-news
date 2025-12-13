@@ -1,9 +1,5 @@
 import pytest
 import os
-import sys
-
-# 确保能导入上级目录的模块
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 @pytest.fixture(autouse=True)
 def mock_env(monkeypatch):

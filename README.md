@@ -9,9 +9,6 @@
 
 ## 2. 安装依赖
 
-- 直接安装依赖（最简单）：
-  - `pip install -r requirements.txt`
-
 - 或者安装为可执行包（推荐，标准化）：
   - `pip install -e .`
 
@@ -26,10 +23,6 @@
 - 安装为命令后：
   - `news-crawler ingest`
   - `news-crawler publish`
-
-- 兼容旧入口（仍可用）：
-  - `python main_ingest.py`
-  - `python main_publish.py`
 
 ## 4. 测试
 
