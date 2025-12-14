@@ -1,0 +1,45 @@
+[category]
+key = "NetTech_Hardcore"
+order = 30
+
+[rss]
+HackerNews = "https://news.ycombinator.com/rss"
+Solidot = "http://feeds.feedburner.com/solidot"
+OSNews = "https://www.osnews.com/feed/"
+Phoronix = "https://www.phoronix.com/rss.php"
+
+[ai]
+display_name = "科技新闻"
+max_input_chars = 2000
+prompt = """
+你是硬核技术分析师。评估以下技术新闻的价值。
+
+评分维度：
+- 对技术发展的影响力 (50%)
+- 技术突破的重要性 (50%)
+（不考虑热度）
+
+任务：
+1. 【摘要】一句话技术要点（<80字）
+2. 【技术评分】0-100分
+   - 90-100: 里程碑式技术突破（新架构、重大版本）
+   - 70-89: 重要技术更新/安全漏洞
+   - 50-69: 值得关注的技术动态
+   - 0-49: 常规更新/讨论
+3. 【标签】技术标签（如：Linux内核、Rust、安全漏洞）
+
+广告/招聘返回：PASS
+
+输出格式：
+[摘要]
+|TAGS|标签1, 标签2
+|SCORE|分数
+"""
+
+[report]
+title_prefix = "科技新闻"
+folder = "科技新闻"
+description = "新架构、Linux内核、芯片突破及硬核软件工程。"
+max_items = 10
+excerpt_max_titles = 15
+badge_enabled = true

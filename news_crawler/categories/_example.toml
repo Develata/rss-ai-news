@@ -1,0 +1,45 @@
+# 板块配置示例（复制一份改名为 <YourCategory>.toml 即可生效）
+# - 文件名不重要，真正的键由 category.key 决定
+# - 以 "_" 开头的文件会被忽略
+
+[category]
+# 唯一键：将写入数据库 NewsArticle.category，并作为配置索引
+key = "Example_Category"
+# 排序：影响日报生成顺序（越小越靠前）
+order = 100
+
+[rss]
+# RSS 源列表：key 是来源名，value 是 URL
+# 可以使用 {RSSHUB} 占位符，运行时会用 RSSHUB_BASE_URL 替换
+Example_Source = "{RSSHUB}/example/path"
+
+[ai]
+# 显示名：用于日志/文档
+display_name = "示例板块"
+# 输入截断：控制 token 消耗
+max_input_chars = 2000
+# Prompt：需要输出 |TAGS| 和 |SCORE|，不合格内容返回 PASS
+prompt = """
+你是信息分析师。请根据内容输出：
+1) [摘要]（一句话）
+2) |TAGS| 1-2 个标签
+3) |SCORE| 0-100 分
+
+低价值/广告内容返回：PASS
+"""
+
+[report]
+# 日报标题前缀 & 目录
+title_prefix = "示例日报"
+folder = "Example"
+# 可选描述（用于未来扩展/自说明）
+description = "这是一个示例板块。"
+
+# 选项：每个板块最多展示多少条新闻
+max_items = 10
+# 选项：生成导读时最多使用多少条标题
+excerpt_max_titles = 15
+# 选项：导读自定义 prompt（不填则用默认模板）
+# excerpt_prompt = "..."
+# 选项：是否显示分数 Badge（默认 true）
+badge_enabled = true

@@ -48,5 +48,8 @@ data/
 # Generated
 repomix-output.xml
 
+# Cron env export (generated)
+.docker_env
+
 # Docker overrides
 docker-compose.override.yml

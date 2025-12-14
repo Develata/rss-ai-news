@@ -3,8 +3,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 PYTHONUNBUFFERED=1
 PYTHONPATH=/app
 
-# Ingest + AI processing (every 10 minutes)
-*/10 * * * * . /app/.docker_env && cd /app && python -m news_crawler ingest >> /app/logs/ingest.log 2>&1
+# Ingest + AI processing (every 6 hours)
+0 */6 * * * . /app/.docker_env && cd /app && python -m news_crawler ingest >> /app/logs/ingest.log 2>&1
 
 # Daily report publishing (09:00 Shanghai time)
 0 9 * * * . /app/.docker_env && cd /app && python -m news_crawler publish >> /app/logs/publish.log 2>&1

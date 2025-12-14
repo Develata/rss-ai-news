@@ -32,3 +32,6 @@ news-crawler-publish = "news_crawler.publish:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["news_crawler*"]
+
+[tool.setuptools.package-data]
+news_crawler = ["categories/*.toml"]

@@ -1,10 +1,10 @@
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from news_crawler.core.config import REPORT_CONFIGS
 from news_crawler.core.database import NewsArticle
-from news_crawler.core.settings import get_settings
 from news_crawler.services.ai_service import get_custom_ai_response
 from news_crawler.services.publisher_service import GitHubPublisher
 
@@ -16,16 +16,19 @@ except ImportError:
     logger = logging.getLogger(__name__)
 
 
-def generate_excerpt(articles, title_prefix):
+def generate_excerpt(articles, config):
     if not articles:
         return "本期无内容。"
 
-    titles_list = "\n".join([f"- {art.title}" for art in articles[:15]])
+    max_titles = int(config.get("excerpt_max_titles") or 15)
+    titles_list = "\n".join([f"- {art.title}" for art in articles[:max_titles]])
 
-    system_prompt = (
-        f"你是一个科技新闻主编。请根据以下【{title_prefix}】板块的新闻标题列表，"
-        "写一段简短的日报导读（Excerpt）。要求语气专业客观，80字以内。"
-    )
+    system_prompt = (config.get("excerpt_prompt") or "").strip()
+    if not system_prompt:
+        system_prompt = (
+            f"你是一个科技新闻主编。请根据以下【{config['title_prefix']}】板块的新闻标题列表，"
+            "写一段简短的日报导读（Excerpt）。要求语气专业客观，80字以内。"
+        )
 
     try:
         excerpt = get_custom_ai_response(titles_list, system_prompt)
@@ -45,7 +48,7 @@ def generate_md_content(articles, config):
     now = datetime.now(tz)
     date_str = f"{now.year}-{now.month}-{now.day}"
 
-    excerpt_text = generate_excerpt(articles, config["title_prefix"])
+    excerpt_text = generate_excerpt(articles, config)
     if not excerpt_text:
         excerpt_text = "暂无摘要"
 
@@ -65,6 +68,8 @@ def generate_md_content(articles, config):
         f"> {excerpt_text}\n",
     ]
 
+    badge_enabled = bool(config.get("badge_enabled", True))
+
     for art in articles:
         title = (
             art.title.replace("|", "-")
@@ -77,9 +82,12 @@ def generate_md_content(articles, config):
             [f"`{t.strip()}` " for t in (art.ai_tags or "").split(",") if t.strip()]
         )
 
-        md.append(
-            f"## {title} <Badge type=\"tip\" text=\"{art.importance_score}\" />\n"
-        )
+        if badge_enabled:
+            md.append(
+                f"## {title} <Badge type=\"tip\" text=\"{art.importance_score}\" />\n"
+            )
+        else:
+            md.append(f"## {title}\n")
         if tags:
             md.append(f"- **Tags:** {tags}\n")
 
@@ -125,8 +133,7 @@ def run_publishing_job(session):
     for art in all_articles:
         if art.category not in articles_by_category:
             articles_by_category[art.category] = []
-        if len(articles_by_category[art.category]) < 10:
-            articles_by_category[art.category].append(art)
+        articles_by_category[art.category].append(art)
 
     # 4. 生成内容并暂存
     pending_updates = [] # [{"path": "...", "content": "..."}]
@@ -134,7 +141,8 @@ def run_publishing_job(session):
 
     for category_key, cfg in REPORT_CONFIGS.items():
         try:
-            articles = articles_by_category.get(category_key, [])
+            max_items = int(cfg.get("max_items") or 10)
+            articles = articles_by_category.get(category_key, [])[:max_items]
             if articles:
                 logger.info(f"    🛠️ Generating MD for {cfg['title_prefix']} ({len(articles)} items)...")
                 

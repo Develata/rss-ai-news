@@ -91,7 +91,10 @@ class TestCategoryStrategies:
             assert len(strategy.display_name) > 0
             assert len(strategy.prompt) > 50
             assert 1000 <= strategy.max_input_chars <= 3000
-            assert isinstance(strategy.score_weights, dict)
+
+    def test_strategies_loaded_from_category_configs(self):
+        """策略应来自板块配置文件（TOML），确保至少加载 5 个板块"""
+        assert len(CATEGORY_STRATEGIES) >= 5
 
     def test_unknown_category_returns_default(self):
         """未知分类应返回默认策略"""

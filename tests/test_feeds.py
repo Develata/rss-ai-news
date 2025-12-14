@@ -4,6 +4,11 @@ import requests
 import os
 
 from news_crawler.core.config import RSS_CATEGORIES
+
+
+def test_rss_categories_are_configured():
+    assert isinstance(RSS_CATEGORIES, dict)
+    assert len(RSS_CATEGORIES) >= 5
 from news_crawler.core.crawler import SpiderCore
 
 # 扁平化配置，生成参数列表 [(category, name, url), ...]
