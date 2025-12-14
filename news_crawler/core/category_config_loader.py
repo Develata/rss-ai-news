@@ -142,11 +142,17 @@ def load_category_configs() -> list[CategoryConfig]:
     for path in sorted(root.glob("*.toml")):
         if path.name.startswith("_"):
             continue
-        cfg = _load_one(path)
-        if cfg.key in seen:
-            raise ValueError(f"Duplicate category key: {cfg.key}")
-        seen.add(cfg.key)
-        configs.append(cfg)
+            
+        try:
+            cfg = _load_one(path)
+            if cfg.key in seen:
+                raise ValueError(f"Duplicate category key: {cfg.key}")
+            seen.add(cfg.key)
+            configs.append(cfg)
+        except Exception as e:
+            # 捕获所有配置错误（格式错误、字段校验失败等），打印日志并跳过，防止系统崩溃
+            print(f"❌ [Config Error] Failed to load {path.name}: {e}")
+            continue
 
     configs.sort(key=lambda c: (c.order, c.key))
     return configs

@@ -6,7 +6,8 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlparse
 
-from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String, Text, create_engine
+# 🔥 引入 event 用于监听数据库连接事件
+from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String, Text, create_engine, event
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from news_crawler.core.settings import get_settings
@@ -70,6 +71,17 @@ def get_engine():
             pool_pre_ping=True,
             connect_args={"check_same_thread": False},
         )
+
+        # 🔥 SQLite 性能优化核心逻辑
+        # 开启 WAL (Write-Ahead Logging) 模式，大幅提升并发写入性能
+        @event.listens_for(engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL")
+            # NORMAL 模式在 WAL 下是安全的，且比 FULL 快很多
+            cursor.execute("PRAGMA synchronous=NORMAL")
+            cursor.close()
+
         # SQLite 模式下自动建表，实现“开箱即用”
         Base.metadata.create_all(engine)
         return engine
@@ -104,10 +116,18 @@ if __name__ == "__main__":
     from news_crawler.core.bootstrap import bootstrap
 
     bootstrap()
-    print("🔌 正在连接 Azure 数据库...")
+    print("🔌 正在连接数据库...")
     try:
-        Base.metadata.create_all(get_engine())
+        engine = get_engine()
+        Base.metadata.create_all(engine)
         print("\n✅✅✅ 成功！数据库连接正常，表结构已同步！")
+        
+        # 简单检查 WAL 是否生效 (仅针对 SQLite)
+        if str(engine.url).startswith("sqlite"):
+            with engine.connect() as conn:
+                mode = conn.exec_driver_sql("PRAGMA journal_mode").scalar()
+                print(f"ℹ️  SQLite Journal Mode: {mode} (Expected: wal)")
+                
     except Exception as e:
         print(f"\n❌ 连接失败: {e}")
         sys.exit(1)

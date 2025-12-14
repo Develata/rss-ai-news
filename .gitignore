@@ -3,12 +3,20 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 
+# Bytecode / caches
+*.pyo
+*.pyd
+*.pyc
+
 # Virtualenv
 .venv/
 venv/
 ENV/
 env/
 __pypackages__/
+
+# Local python version managers
+.python-version
 
 # Build / packaging
 dist/
@@ -20,6 +28,11 @@ build/
 .ruff_cache/
 .pytype/
 .cache/
+
+# Test / coverage
+.coverage
+coverage.xml
+htmlcov/
 
 # Logs
 logs/
@@ -34,6 +47,9 @@ data/
 **/.env
 **/.env.*
 
+# Direnv
+.envrc
+
 # Keep example env file in git
 !.env.example
 !**/.env.example
@@ -41,12 +57,18 @@ data/
 # OS
 .DS_Store
 
+# Linux editor backups
+*~
+
 # IDE
 .vscode/
 .idea/
 
 # Generated
 repomix-output.xml
+
+# Jupyter
+.ipynb_checkpoints/
 
 # Cron env export (generated)
 .docker_env
