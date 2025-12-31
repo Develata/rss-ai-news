@@ -37,7 +37,7 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone https://github.com/your-username/rss-ai-news.git
+git clone https://github.com/Develata/rss-ai-news.git
 cd rss-ai-news
 
 ```
