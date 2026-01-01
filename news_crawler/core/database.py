@@ -24,7 +24,7 @@ from news_crawler.core.settings import get_settings
 Base = declarative_base()
 
 
-class NewsArticle(Base):
+class NewsArticle(Base):  # type: ignore[valid-type,misc]
     __tablename__ = "raw_news"
 
     id = Column(Integer, primary_key=True)

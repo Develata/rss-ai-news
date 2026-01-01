@@ -91,6 +91,7 @@ class MailSettings:
     to: str | None
     from_name: str
     to_name: str
+    webhook_url: str | None
 
 
 @dataclass(frozen=True)
@@ -153,6 +154,7 @@ def get_settings() -> Settings:
         to=_getenv("MAIL_TO"),
         from_name=_getenv("MAIL_FROM_NAME", "AI情报员") or "AI情报员",
         to_name=_getenv("MAIL_TO_NAME", "订阅者") or "订阅者",
+        webhook_url=_getenv("WEBHOOK_URL"),
     )
 
     ai = AISettings(

@@ -66,7 +66,7 @@ def _as_int(
         raise ValueError(f"Invalid config: expected int at {where}")
     if minimum is not None and value < minimum:
         raise ValueError(f"Invalid config: expected {where} >= {minimum}")
-    return value
+    return int(value)
 
 
 def _as_bool(value: Any, where: str, *, default: bool) -> bool:

@@ -63,6 +63,8 @@ def get_ai_summary(text: str, category: str = "通用") -> str:
 
     settings = get_settings()
     model_name = settings.ai.model
+    if not model_name:
+        return "⚠️ AI Model not configured"
     base_delay = settings.ai.base_delay
     max_retries = settings.ai.max_retries
 
@@ -91,7 +93,8 @@ def get_ai_summary(text: str, category: str = "通用") -> str:
             if base_delay > 0 and elapsed < base_delay:
                 time.sleep(base_delay - elapsed)
 
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            return content.strip() if content else ""
 
         except RateLimitError as e:
             last_err = e
@@ -142,15 +145,19 @@ def get_custom_ai_response(user_text: str, system_prompt: str) -> str:
 
     try:
         settings = get_settings()
+        model = settings.ai.model
+        if not model:
+            return "AI Model not configured"
         response = client.chat.completions.create(
-            model=settings.ai.model,
+            model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_text[:4000]},
             ],
             temperature=0.5,
         )
-        return response.choices[0].message.content.strip()
+        content = response.choices[0].message.content
+        return content.strip() if content else ""
     except (APIError, APIConnectionError) as e:
         logger.error(f"AI generation failed: {e}")
         return f"AI 生成失败: {e.__class__.__name__}"
@@ -287,19 +294,19 @@ def _update_article_from_result(article: NewsArticle, result: dict[str, Any]) ->
     status = result["status"]
 
     if status == "success":
-        article.summary = result["summary"]
-        article.ai_tags = result["tags"]
-        article.importance_score = result["score"]
-        article.is_ai_processed = True
+        article.summary = result["summary"]  # type: ignore[assignment]
+        article.ai_tags = result["tags"]  # type: ignore[assignment]
+        article.importance_score = result["score"]  # type: ignore[assignment]
+        article.is_ai_processed = True  # type: ignore[assignment]
         category_hint = result.get("category", "")[:8]
         logger.debug(f"[{category_hint}] Score: {result['score']} | {result['title_preview']}...")
         return True
 
     if status == "filtered":
-        article.summary = result["summary"]
-        article.ai_tags = ""
-        article.importance_score = 0
-        article.is_ai_processed = True
+        article.summary = result["summary"]  # type: ignore[assignment]
+        article.ai_tags = ""  # type: ignore[assignment]
+        article.importance_score = 0  # type: ignore[assignment]
+        article.is_ai_processed = True  # type: ignore[assignment]
         logger.debug(f"Filtered: {article.title[:15]}...")
         return True
 
@@ -358,16 +365,16 @@ def process_new_summaries(session: Session, batch_size: int = 50, commit_every: 
         with ThreadPoolExecutor(max_workers=settings.ai.max_workers) as executor:
             futures = []
             for art in articles:
-                cat_name = art.category or "NetTech_Hardcore"
+                cat_name: str = art.category or "NetTech_Hardcore"  # type: ignore[assignment]
                 strategy = get_strategy(cat_name)
-                truncated_content = truncate_text(art.content_text, strategy.max_input_chars)
+                truncated_content = truncate_text(art.content_text, strategy.max_input_chars)  # type: ignore[arg-type]
                 futures.append(
                     executor.submit(
                         _process_single_article_logic,
-                        art.id,
+                        art.id,  # type: ignore[arg-type]
                         truncated_content,
                         cat_name,
-                        art.title,
+                        art.title,  # type: ignore[arg-type]
                     )
                 )
 

@@ -10,7 +10,7 @@ from news_crawler.core.settings import get_settings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def _create_session(proxy_url: str = None) -> requests.Session:
+def _create_session(proxy_url: str | None = None) -> requests.Session:
     """创建带连接池的 requests Session，复用 TCP 连接"""
     session = requests.Session()
 
@@ -36,7 +36,7 @@ def _create_session(proxy_url: str = None) -> requests.Session:
 
 class SpiderCore:
     # 类级别的 Session 缓存（按代理URL区分）
-    _sessions: dict = {}
+    _sessions: dict[str, requests.Session] = {}
 
     def __init__(self):
         settings = get_settings()

@@ -23,7 +23,8 @@ def main() -> None:
     bootstrap()
 
     start_time = time.time()
-    sys.stdout.reconfigure(line_buffering=True)
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(line_buffering=True)  # type: ignore[union-attr]
 
     if SessionLocal is None:
         logger.error("❌ 数据库未配置")
