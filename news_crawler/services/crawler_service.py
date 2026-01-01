@@ -9,9 +9,9 @@ This module provides functionality for:
 
 import random
 import time
+from collections.abc import Generator
 from concurrent.futures import ThreadPoolExecutor, TimeoutError, as_completed
 from datetime import datetime, timedelta, timezone
-from typing import Generator, List, Optional, Set, Tuple
 
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
@@ -31,7 +31,7 @@ except ImportError:
 
 def fetch_with_delay(
     category: str, source_name: str, url: str, cutoff_date: datetime
-) -> List:
+) -> list:
     """
     Fetch RSS feed with random delay for rate limiting.
 
@@ -64,7 +64,7 @@ def fetch_with_delay(
 
 
 def _items_to_articles_generator(
-    items: List, existing_links: Set[str], existing_hashes: Set[str]
+    items: list, existing_links: set[str], existing_hashes: set[str]
 ) -> Generator[NewsArticle, None, None]:
     """
     Convert feed items to NewsArticle objects using generator pattern.
@@ -80,7 +80,7 @@ def _items_to_articles_generator(
     Yields:
         NewsArticle objects for new, non-duplicate items
     """
-    seen_links: Set[str] = set()
+    seen_links: set[str] = set()
     for item in items:
         # Skip duplicate links
         if item.link in existing_links or item.link in seen_links:
@@ -103,8 +103,8 @@ def _items_to_articles_generator(
 
 
 def _fetch_existing_values(
-    session: Session, values: List[str], column, chunk_size: int = 500
-) -> Set[str]:
+    session: Session, values: list[str], column, chunk_size: int = 500
+) -> set[str]:
     """
     Fetch existing values from database in batches to optimize memory.
 
@@ -117,7 +117,7 @@ def _fetch_existing_values(
     Returns:
         Set of existing values found in database
     """
-    existing_set: Set[str] = set()
+    existing_set: set[str] = set()
     for chunk in chunker(values, chunk_size):
         if not chunk:
             continue
@@ -127,7 +127,7 @@ def _fetch_existing_values(
 
 
 def _commit_articles_in_batches(
-    session: Session, batch_buffer: List[NewsArticle]
+    session: Session, batch_buffer: list[NewsArticle]
 ) -> int:
     """
     Commit a batch of articles to database with error handling.
@@ -227,7 +227,7 @@ def run_crawler_job(session: Session, batch_size: int = 100, wait_timeout: int =
 
     # Use generator pattern for batch saving
     new_count = 0
-    batch_buffer: List[NewsArticle] = []
+    batch_buffer: list[NewsArticle] = []
 
     for article in _items_to_articles_generator(all_items, existing_link_set, existing_hash_set):
         batch_buffer.append(article)

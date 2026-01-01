@@ -11,9 +11,9 @@ Provides functionality for:
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, Optional, Any
+from typing import Any
 
-from openai import OpenAI, APIError, RateLimitError, APIConnectionError
+from openai import APIConnectionError, APIError, OpenAI, RateLimitError
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
@@ -29,7 +29,7 @@ except ImportError:
     logger = logging.getLogger(__name__)
 
 
-def _get_client() -> Optional[OpenAI]:
+def _get_client() -> OpenAI | None:
     """
     Get configured OpenAI client.
 
@@ -73,7 +73,7 @@ def get_ai_summary(text: str, category: str = "通用") -> str:
     # Smart truncation of input text
     truncated_text = truncate_text(text, max_input_chars)
 
-    last_err: Optional[Exception] = None
+    last_err: Exception | None = None
 
     for attempt in range(1, max_retries + 1):
         try:
@@ -207,7 +207,7 @@ def _clean_summary_text(raw_output: str) -> str:
 
 def _process_single_article_logic(
     art_id: int, content_text: str, category: str, title: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Process single article with AI summarization and scoring.
 
@@ -275,7 +275,7 @@ def _commit_with_error_handling(session: Session) -> None:
 
 
 def _update_article_from_result(
-    article: NewsArticle, result: Dict[str, Any]
+    article: NewsArticle, result: dict[str, Any]
 ) -> bool:
     """
     Update article object based on AI processing result.
