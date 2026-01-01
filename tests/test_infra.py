@@ -27,7 +27,7 @@ def test_proxy_connectivity():
         pytest.skip("AZURE_PROXY not configured, skipping")
 
     proxies = {"http": proxy_url, "https": proxy_url}
-    print(f"\n🔍 Testing Proxy: {proxy_url}")
+    # pytest will log this test execution automatically
 
     try:
         resp = requests.get(

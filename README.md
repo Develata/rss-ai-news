@@ -6,6 +6,10 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/)
 [![CI Status](https://github.com/Develata/rss-ai-news/workflows/CI/badge.svg)](https://github.com/Develata/rss-ai-news/actions)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/Develata/rss-ai-news/graphs/commit-activity)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 **你的私人 AI 情报官 | 全自动新闻聚合、分析与发布系统**
 
@@ -232,6 +236,68 @@ Terry_Tao = "https://terrytao.wordpress.com/feed/"
 └── pyproject.toml      # 项目依赖管理
 
 ```
+
+---
+
+## 🤝 贡献 | Contributing
+
+欢迎提交 Pull Request 或报告 Issue！请阅读 [贡献指南](CONTRIBUTING.md) 了解详情。
+
+### 开发环境设置
+
+```bash
+# 克隆仓库
+git clone https://github.com/Develata/rss-ai-news.git
+cd rss-ai-news
+
+# 安装开发依赖
+pip install -e ".[dev,test]"
+
+# 安装 pre-commit hooks
+pre-commit install
+
+# 运行测试
+pytest -v
+
+# 代码格式化
+black news_crawler tests
+ruff check --fix news_crawler tests
+```
+
+---
+
+## 📜 许可证 | License
+
+本项目采用 [MIT License](LICENSE) 开源。
+
+---
+
+## 📧 联系方式 | Contact
+
+- **项目维护者**: Develata Team
+- **Email**: [rss-ai-news@develata.com](mailto:rss-ai-news@develata.com)
+- **Issues**: [GitHub Issues](https://github.com/Develata/rss-ai-news/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Develata/rss-ai-news/discussions)
+
+---
+
+## 💖 支持项目 | Support
+
+如果这个项目对你有帮助，请考虑：
+- ⭐ 给项目点个 Star
+- 🐛 报告 Bug 或提出改进建议
+- 🔀 提交 Pull Request
+- 📢 分享给更多人
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Develata](https://github.com/Develata)**
+
+*让 AI 成为你的情报分析师 | Your Personal AI Intelligence Analyst*
+
+</div>
 
 ## 📄 License
 

@@ -23,6 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-mock"]
+dev = ["black", "ruff", "mypy", "pre-commit"]
 
 [project.scripts]
 news-crawler = "news_crawler.__main__:main"
@@ -35,3 +36,46 @@ include = ["news_crawler*"]
 
 [tool.setuptools.package-data]
 news_crawler = ["categories/*.toml"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+skip-string-normalization = false
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex (we've already optimized)
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports in __init__.py
+"tests/*" = ["S101"]       # assert allowed in tests
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true

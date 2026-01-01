@@ -12,6 +12,20 @@ services:
       
     container_name: news_crawler
     restart: unless-stopped
+    
+    # 网络配置（隔离安全）
+    networks:
+      - news_crawler_net
+    
+    # 资源限制（防止滥用）
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
     # 2. 路径映射
     volumes:
@@ -31,6 +45,22 @@ services:
     environment:
       TZ: Asia/Shanghai
       NO_PROXY: "127.0.0.1,localhost"
+    
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "sh", "-c", "test -f /app/data/news.db && sqlite3 /app/data/news.db 'SELECT 1' > /dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# 网络配置
+networks:
+  news_crawler_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
       PYTHONPATH: /app
       PYTHONUNBUFFERED: "1"
       # 指定外部配置目录路径

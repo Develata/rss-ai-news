@@ -43,10 +43,8 @@ def test_rss_feed_connectivity(category, name, url):
     """
     spider = SpiderCore()
     
-    if not os.getenv('AZURE_PROXY'):
-        print("\n⚠️  Warning: No proxy configured, some feeds might fail.")
-
-    print(f"\nTesting {category}/{name}...")
+    # Note: Tests may fail without proxy configuration (set AZURE_PROXY)
+    # pytest will show test name automatically, no need for print statements
     
     if url.startswith("JSON|"):
         # JSON API endpoint
