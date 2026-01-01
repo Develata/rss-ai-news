@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timezone
 
 from github import Github, InputGitTreeElement  # <--- 必须引入 InputGitTreeElement
 from github.GithubException import GithubException
@@ -35,7 +34,7 @@ class GitHubPublisher:
             logger.info(f"🐙 已连接 GitHub 仓库: {repo_name}")
         except GithubException as e:
             if e.status == 401:
-                raise ValueError(f"❌ GitHub 认证失败: Token 无效或已过期\n   💡 请检查 GITHUB_TOKEN 配置") from e
+                raise ValueError("❌ GitHub 认证失败: Token 无效或已过期\n   💡 请检查 GITHUB_TOKEN 配置") from e
             elif e.status == 404:
                 raise ValueError(f"❌ GitHub 仓库不存在: {repo_name}\n   💡 请检查 REPO_NAME 配置或 Token 的访问权限") from e
             else:
@@ -68,12 +67,12 @@ class GitHubPublisher:
             full_path = full_path.lstrip("/\\")
             if self.target_folder:
                 full_path = os.path.join(self.target_folder, full_path)
-            
+
             full_path = full_path.replace("\\", "/").strip("/")
 
             # 创建 Blob (文件对象)，处理编码
             blob = repo.create_git_blob(file["content"], "utf-8")
-            
+
             # 创建 Tree 元素
             element = InputGitTreeElement(
                 path=full_path,
@@ -100,8 +99,8 @@ class GitHubPublisher:
             ref.edit(new_commit.sha)
         except GithubException as e:
             if e.status == 403:
-                raise RuntimeError(f"❌ GitHub Push 权限不足\n   💡 请确保 Token 具有仓库写入权限 (repo scope)") from e
+                raise RuntimeError("❌ GitHub Push 权限不足\n   💡 请确保 Token 具有仓库写入权限 (repo scope)") from e
             else:
                 raise RuntimeError(f"❌ GitHub Push 失败: {e.data.get('message', str(e))}") from e
-        
+
         logger.info(f"✅ [Batch Push] 成功推送 {len(file_updates)} 个文件。Commit SHA: {new_commit.sha[:7]}")
