@@ -36,9 +36,7 @@ REQUEST_TIMEOUT = 20
 HOTNEWS_CATEGORY = "HotNews_CN"
 
 
-def _fetch_json_feed(
-    url: str, source_name: str, proxy: str | None
-) -> list[PseudoEntry]:
+def _fetch_json_feed(url: str, source_name: str, proxy: str | None) -> list[PseudoEntry]:
     """
     Fetch and parse JSON-formatted feed.
 
@@ -77,9 +75,7 @@ def _fetch_json_feed(
         return []
 
 
-def _fetch_rss_feed(
-    url: str, source_name: str, spider: SpiderCore
-) -> list[Any]:
+def _fetch_rss_feed(url: str, source_name: str, spider: SpiderCore) -> list[Any]:
     """
     Fetch and parse RSS feed.
 
@@ -116,13 +112,9 @@ def _get_published_time(entry: Any) -> datetime | None:
         Datetime object in UTC, None if not available
     """
     if hasattr(entry, "published_parsed") and entry.published_parsed:
-        return datetime.fromtimestamp(
-            time.mktime(entry.published_parsed), timezone.utc
-        )
+        return datetime.fromtimestamp(time.mktime(entry.published_parsed), timezone.utc)
     if hasattr(entry, "updated_parsed") and entry.updated_parsed:
-        return datetime.fromtimestamp(
-            time.mktime(entry.updated_parsed), timezone.utc
-        )
+        return datetime.fromtimestamp(time.mktime(entry.updated_parsed), timezone.utc)
     return None
 
 
@@ -141,9 +133,7 @@ def _extract_hotnews_content(entry: Any) -> tuple[str, str]:
     return content, compute_hash(content)
 
 
-def _extract_full_article_content(
-    link: str, spider: SpiderCore
-) -> tuple[str, str] | None:
+def _extract_full_article_content(link: str, spider: SpiderCore) -> tuple[str, str] | None:
     """
     Extract full article content from URL.
 

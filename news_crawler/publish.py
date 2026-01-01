@@ -16,7 +16,8 @@ try:
     from news_crawler.utils.logger import logger
 except ImportError:
     import logging
-    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
     logger = logging.getLogger(__name__)
 
 
@@ -69,9 +70,7 @@ def main() -> None:
                 time_window = datetime.now(timezone.utc) - timedelta(hours=24)
 
                 new_raw_count = (
-                    session.query(NewsArticle)
-                    .filter(NewsArticle.created_at >= time_window)
-                    .count()
+                    session.query(NewsArticle).filter(NewsArticle.created_at >= time_window).count()
                 )
 
                 ai_processed_count = (
@@ -92,7 +91,9 @@ def main() -> None:
                 )
         except Exception as e:
             logger.error(f"❌ 邮件统计查询失败: {e}")
-            send_notification(f"✅ 日报发布成功 ({published_count}份)", "统计数据查询异常，但文件已推送。")
+            send_notification(
+                f"✅ 日报发布成功 ({published_count}份)", "统计数据查询异常，但文件已推送。"
+            )
     else:
         logger.info("😴 [Phase 3 Skipped] 今日无内容发布，不发送邮件。")
 

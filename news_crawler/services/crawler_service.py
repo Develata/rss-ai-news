@@ -29,9 +29,7 @@ except ImportError:
     logger = logging.getLogger(__name__)
 
 
-def fetch_with_delay(
-    category: str, source_name: str, url: str, cutoff_date: datetime
-) -> list:
+def fetch_with_delay(category: str, source_name: str, url: str, cutoff_date: datetime) -> list:
     """
     Fetch RSS feed with random delay for rate limiting.
 
@@ -126,9 +124,7 @@ def _fetch_existing_values(
     return existing_set
 
 
-def _commit_articles_in_batches(
-    session: Session, batch_buffer: list[NewsArticle]
-) -> int:
+def _commit_articles_in_batches(session: Session, batch_buffer: list[NewsArticle]) -> int:
     """
     Commit a batch of articles to database with error handling.
 
@@ -213,7 +209,9 @@ def run_crawler_job(session: Session, batch_size: int = 100, wait_timeout: int =
         # Check if all tasks failed
         failed_tasks = sum(1 for t in tasks if t.done() and t.exception())
         if failed_tasks == len(tasks) and len(tasks) > 0:
-            logger.error(f"❌ All {len(tasks)} crawler tasks failed. This may indicate a critical issue.")
+            logger.error(
+                f"❌ All {len(tasks)} crawler tasks failed. This may indicate a critical issue."
+            )
         return 0
 
     logger.info(f"📥 Downloaded {len(all_items)} items. DB Deduplicating...")

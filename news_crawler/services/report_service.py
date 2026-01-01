@@ -54,8 +54,8 @@ def generate_md_content(articles, config):
 
     raw_title = f"{config['title_prefix']} {date_str}"
 
-    safe_title = raw_title.replace('"', "\\\"").strip()
-    safe_excerpt = excerpt_text.replace('"', "\\\"").replace("\n", " ").strip()
+    safe_title = raw_title.replace('"', '\\"').strip()
+    safe_excerpt = excerpt_text.replace('"', '\\"').replace("\n", " ").strip()
 
     md = [
         "---",
@@ -71,21 +71,12 @@ def generate_md_content(articles, config):
     badge_enabled = bool(config.get("badge_enabled", True))
 
     for art in articles:
-        title = (
-            art.title.replace("|", "-")
-            .replace("[", "(")
-            .replace("]", ")")
-            .strip()
-        )
+        title = art.title.replace("|", "-").replace("[", "(").replace("]", ")").strip()
 
-        tags = "".join(
-            [f"`{t.strip()}` " for t in (art.ai_tags or "").split(",") if t.strip()]
-        )
+        tags = "".join([f"`{t.strip()}` " for t in (art.ai_tags or "").split(",") if t.strip()])
 
         if badge_enabled:
-            md.append(
-                f"## {title} <Badge type=\"tip\" text=\"{art.importance_score}\" />\n"
-            )
+            md.append(f'## {title} <Badge type="tip" text="{art.importance_score}" />\n')
         else:
             md.append(f"## {title}\n")
         if tags:
@@ -136,7 +127,7 @@ def run_publishing_job(session):
         articles_by_category[art.category].append(art)
 
     # 4. 生成内容并暂存
-    pending_updates = [] # [{"path": "...", "content": "..."}]
+    pending_updates = []  # [{"path": "...", "content": "..."}]
     generated_titles = []
 
     for category_key, cfg in REPORT_CONFIGS.items():
@@ -144,17 +135,16 @@ def run_publishing_job(session):
             max_items = int(cfg.get("max_items") or 10)
             articles = articles_by_category.get(category_key, [])[:max_items]
             if articles:
-                logger.info(f"    🛠️ Generating MD for {cfg['title_prefix']} ({len(articles)} items)...")
+                logger.info(
+                    f"    🛠️ Generating MD for {cfg['title_prefix']} ({len(articles)} items)..."
+                )
 
                 content = generate_md_content(articles, cfg)
                 folder_name = cfg.get("folder", "Other")
                 file_path = f"{folder_name}/{current_year}/{current_date_file}.md"
 
-                pending_updates.append({
-                    "path": file_path,
-                    "content": content
-                })
-                generated_titles.append(cfg['title_prefix'])
+                pending_updates.append({"path": file_path, "content": content})
+                generated_titles.append(cfg["title_prefix"])
             else:
                 logger.info(f"    😴 Skipped {cfg['title_prefix']}")
 
@@ -182,7 +172,9 @@ def run_publishing_job(session):
     if published_count > 0:
         try:
             # 构造 Commit Message
-            commit_msg = f"🤖 Bot Update: {current_date_file} Report ({', '.join(generated_titles)})"
+            commit_msg = (
+                f"🤖 Bot Update: {current_date_file} Report ({', '.join(generated_titles)})"
+            )
 
             # 调用批量推送
             publisher.publish_changes(pending_updates, commit_msg)

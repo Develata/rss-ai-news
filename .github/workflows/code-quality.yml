@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         timeout-minutes: 5
         run: |
-          pip install black ruff mypy
+          pip install black ruff mypy types-requests
           pip install -e ".[test]"
           
       - name: Run black

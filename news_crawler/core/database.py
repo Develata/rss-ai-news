@@ -45,9 +45,11 @@ class NewsArticle(Base):
     # 复合索引优化查询
     __table_args__ = (
         # AI处理查询：查找未处理的文章
-        Index('ix_raw_news_ai_pending', 'is_ai_processed', postgresql_where=is_ai_processed.is_(False)),
+        Index(
+            "ix_raw_news_ai_pending", "is_ai_processed", postgresql_where=is_ai_processed.is_(False)
+        ),
         # 报表查询：按分类+时间+分数查询
-        Index('ix_raw_news_report', 'category', 'created_at', 'importance_score'),
+        Index("ix_raw_news_report", "category", "created_at", "importance_score"),
     )
 
 
@@ -127,7 +129,7 @@ if __name__ == "__main__":
 
     from news_crawler.core.bootstrap import bootstrap
 
-    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
     logger = logging.getLogger(__name__)
 
     bootstrap()

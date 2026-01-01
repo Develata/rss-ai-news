@@ -1,17 +1,19 @@
-"""Business services."""
+"""Service package exports modules (functions only)."""
 
-from news_crawler.services.ai_service import AIService
-from news_crawler.services.crawler_service import CrawlerService
-from news_crawler.services.email_service import EmailService
-from news_crawler.services.publisher_service import PublisherService
-from news_crawler.services.report_service import ReportService
-from news_crawler.services.webhook_service import WebhookService
+from . import (
+    ai_service,
+    crawler_service,
+    email_service,
+    publisher_service,
+    report_service,
+    webhook_service,
+)
 
 __all__ = [
-    "AIService",
-    "CrawlerService",
-    "EmailService",
-    "PublisherService",
-    "ReportService",
-    "WebhookService",
+    "ai_service",
+    "crawler_service",
+    "email_service",
+    "publisher_service",
+    "report_service",
+    "webhook_service",
 ]

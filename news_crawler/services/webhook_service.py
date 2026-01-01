@@ -7,6 +7,7 @@ from news_crawler.core.settings import get_settings
 
 logger = logging.getLogger(__name__)
 
+
 def send_webhook(text: str):
     """
     Send notification to webhook URL (DingTalk, Lark, Discord, etc.).

@@ -8,7 +8,10 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-import tomllib
+try:  # Python 3.11+
+    import tomllib
+except ModuleNotFoundError:  # Python 3.10 fallback
+    import tomli as tomllib
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +55,9 @@ def _as_str(value: Any, where: str) -> str:
     return value.strip()
 
 
-def _as_int(value: Any, where: str, *, minimum: int | None = None, default: int | None = None) -> int:
+def _as_int(
+    value: Any, where: str, *, minimum: int | None = None, default: int | None = None
+) -> int:
     if value is None:
         if default is None:
             raise ValueError(f"Invalid config: expected int at {where}")
@@ -125,7 +130,10 @@ def _load_one(path: Path) -> CategoryConfig:
         display_name=_as_str(ai.get("display_name"), f"{path.name}.[ai].display_name"),
         prompt=_as_str(ai.get("prompt"), f"{path.name}.[ai].prompt"),
         max_input_chars=_as_int(
-            ai.get("max_input_chars"), f"{path.name}.[ai].max_input_chars", minimum=100, default=2000
+            ai.get("max_input_chars"),
+            f"{path.name}.[ai].max_input_chars",
+            minimum=100,
+            default=2000,
         ),
     )
 
@@ -133,15 +141,21 @@ def _load_one(path: Path) -> CategoryConfig:
         title_prefix=_as_str(report.get("title_prefix"), f"{path.name}.[report].title_prefix"),
         folder=_as_str(report.get("folder"), f"{path.name}.[report].folder"),
         description=_as_str(report.get("description", ""), f"{path.name}.[report].description"),
-        max_items=_as_int(report.get("max_items"), f"{path.name}.[report].max_items", minimum=1, default=10),
+        max_items=_as_int(
+            report.get("max_items"), f"{path.name}.[report].max_items", minimum=1, default=10
+        ),
         excerpt_max_titles=_as_int(
             report.get("excerpt_max_titles"),
             f"{path.name}.[report].excerpt_max_titles",
             minimum=1,
             default=15,
         ),
-        excerpt_prompt=_as_opt_str(report.get("excerpt_prompt"), f"{path.name}.[report].excerpt_prompt"),
-        badge_enabled=_as_bool(report.get("badge_enabled"), f"{path.name}.[report].badge_enabled", default=True),
+        excerpt_prompt=_as_opt_str(
+            report.get("excerpt_prompt"), f"{path.name}.[report].excerpt_prompt"
+        ),
+        badge_enabled=_as_bool(
+            report.get("badge_enabled"), f"{path.name}.[report].badge_enabled", default=True
+        ),
     )
 
     return CategoryConfig(

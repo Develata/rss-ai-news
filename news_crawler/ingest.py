@@ -14,7 +14,8 @@ try:
     from news_crawler.utils.logger import logger
 except ImportError:
     import logging
-    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
     logger = logging.getLogger(__name__)
 
 

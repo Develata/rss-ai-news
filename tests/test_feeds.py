@@ -31,6 +31,7 @@ def get_feed_params():
             params.append((cat, name, url))
     return params
 
+
 @pytest.mark.live
 @pytest.mark.parametrize("category, name, url", get_feed_params())
 def test_rss_feed_connectivity(category, name, url):
@@ -49,9 +50,7 @@ def test_rss_feed_connectivity(category, name, url):
         real_url = url.split("|")[1]
         try:
             resp = requests.get(real_url, timeout=10)
-            assert resp.status_code == 200, (
-                f"JSON API {name} returned status {resp.status_code}"
-            )
+            assert resp.status_code == 200, f"JSON API {name} returned status {resp.status_code}"
         except requests.RequestException as e:
             pytest.fail(f"JSON API {name} connection failed: {e}")
     else:

@@ -9,6 +9,7 @@ try:
     from news_crawler.utils.logger import logger
 except ImportError:
     import logging
+
     logger = logging.getLogger(__name__)
 
 
@@ -34,13 +35,21 @@ class GitHubPublisher:
             logger.info(f"🐙 已连接 GitHub 仓库: {repo_name}")
         except GithubException as e:
             if e.status == 401:
-                raise ValueError("❌ GitHub 认证失败: Token 无效或已过期\n   💡 请检查 GITHUB_TOKEN 配置") from e
+                raise ValueError(
+                    "❌ GitHub 认证失败: Token 无效或已过期\n   💡 请检查 GITHUB_TOKEN 配置"
+                ) from e
             elif e.status == 404:
-                raise ValueError(f"❌ GitHub 仓库不存在: {repo_name}\n   💡 请检查 REPO_NAME 配置或 Token 的访问权限") from e
+                raise ValueError(
+                    f"❌ GitHub 仓库不存在: {repo_name}\n   💡 请检查 REPO_NAME 配置或 Token 的访问权限"
+                ) from e
             else:
-                raise ValueError(f"❌ GitHub 连接失败 ({e.status}): {e.data.get('message', str(e))}") from e
+                raise ValueError(
+                    f"❌ GitHub 连接失败 ({e.status}): {e.data.get('message', str(e))}"
+                ) from e
         except Exception as e:
-            raise ValueError(f"❌ GitHub 初始化失败: {type(e).__name__}: {e}\n   💡 请检查网络连接") from e
+            raise ValueError(
+                f"❌ GitHub 初始化失败: {type(e).__name__}: {e}\n   💡 请检查网络连接"
+            ) from e
 
     def publish_changes(self, file_updates: list, commit_message: str):
         """
@@ -75,10 +84,7 @@ class GitHubPublisher:
 
             # 创建 Tree 元素
             element = InputGitTreeElement(
-                path=full_path,
-                mode='100644', # 100644 表示普通文件
-                type='blob',
-                sha=blob.sha
+                path=full_path, mode="100644", type="blob", sha=blob.sha  # 100644 表示普通文件
             )
             element_list.append(element)
 
@@ -86,7 +92,9 @@ class GitHubPublisher:
         try:
             new_tree = repo.create_git_tree(element_list, base_tree)
         except GithubException as e:
-            raise RuntimeError(f"❌ GitHub Tree 创建失败: {e.data.get('message', str(e))}\n   💡 可能是文件路径格式错误") from e
+            raise RuntimeError(
+                f"❌ GitHub Tree 创建失败: {e.data.get('message', str(e))}\n   💡 可能是文件路径格式错误"
+            ) from e
 
         # 4. 创建新的 Commit
         try:
@@ -99,8 +107,12 @@ class GitHubPublisher:
             ref.edit(new_commit.sha)
         except GithubException as e:
             if e.status == 403:
-                raise RuntimeError("❌ GitHub Push 权限不足\n   💡 请确保 Token 具有仓库写入权限 (repo scope)") from e
+                raise RuntimeError(
+                    "❌ GitHub Push 权限不足\n   💡 请确保 Token 具有仓库写入权限 (repo scope)"
+                ) from e
             else:
                 raise RuntimeError(f"❌ GitHub Push 失败: {e.data.get('message', str(e))}") from e
 
-        logger.info(f"✅ [Batch Push] 成功推送 {len(file_updates)} 个文件。Commit SHA: {new_commit.sha[:7]}")
+        logger.info(
+            f"✅ [Batch Push] 成功推送 {len(file_updates)} 个文件。Commit SHA: {new_commit.sha[:7]}"
+        )

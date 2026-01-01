@@ -3,7 +3,7 @@ import logging
 from news_crawler.core.bootstrap import bootstrap
 from news_crawler.core.database import NewsArticle, get_engine
 
-logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
 bootstrap()

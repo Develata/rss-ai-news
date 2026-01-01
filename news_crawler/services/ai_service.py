@@ -26,6 +26,7 @@ try:
     from news_crawler.utils.logger import logger
 except ImportError:
     import logging
+
     logger = logging.getLogger(__name__)
 
 
@@ -185,9 +186,7 @@ def _extract_tags_from_output(raw_output: str) -> str:
     Returns:
         Comma-separated tags string, empty if not found
     """
-    tags_match = re.search(
-        r"(?:TAGS|标签)[\|\s:：]*([^\n\|]+)", raw_output, re.IGNORECASE
-    )
+    tags_match = re.search(r"(?:TAGS|标签)[\|\s:：]*([^\n\|]+)", raw_output, re.IGNORECASE)
     return tags_match.group(1).strip() if tags_match else ""
 
 
@@ -274,9 +273,7 @@ def _commit_with_error_handling(session: Session) -> None:
         session.rollback()
 
 
-def _update_article_from_result(
-    article: NewsArticle, result: dict[str, Any]
-) -> bool:
+def _update_article_from_result(article: NewsArticle, result: dict[str, Any]) -> bool:
     """
     Update article object based on AI processing result.
 
@@ -295,9 +292,7 @@ def _update_article_from_result(
         article.importance_score = result["score"]
         article.is_ai_processed = True
         category_hint = result.get("category", "")[:8]
-        logger.debug(
-            f"[{category_hint}] Score: {result['score']} | {result['title_preview']}..."
-        )
+        logger.debug(f"[{category_hint}] Score: {result['score']} | {result['title_preview']}...")
         return True
 
     if status == "filtered":
@@ -309,17 +304,13 @@ def _update_article_from_result(
         return True
 
     if status == "error":
-        logger.error(
-            f"Error processing article ID {result['id']}: {result.get('error_msg')}"
-        )
+        logger.error(f"Error processing article ID {result['id']}: {result.get('error_msg')}")
         return False
 
     return False
 
 
-def process_new_summaries(
-    session: Session, batch_size: int = 50, commit_every: int = 10
-) -> int:
+def process_new_summaries(session: Session, batch_size: int = 50, commit_every: int = 10) -> int:
     """
     Process unprocessed articles with AI using generator pattern.
 
@@ -369,9 +360,7 @@ def process_new_summaries(
             for art in articles:
                 cat_name = art.category or "NetTech_Hardcore"
                 strategy = get_strategy(cat_name)
-                truncated_content = truncate_text(
-                    art.content_text, strategy.max_input_chars
-                )
+                truncated_content = truncate_text(art.content_text, strategy.max_input_chars)
                 futures.append(
                     executor.submit(
                         _process_single_article_logic,
@@ -407,8 +396,7 @@ def process_new_summaries(
         failure_rate = (total_errors / total_processed) * 100
         if failure_rate > 50:
             logger.warning(
-                f"High AI failure rate: {failure_rate:.1f}% "
-                f"({total_errors}/{total_processed})"
+                f"High AI failure rate: {failure_rate:.1f}% " f"({total_errors}/{total_processed})"
             )
         elif total_errors > 0:
             logger.info(

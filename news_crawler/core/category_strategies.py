@@ -14,10 +14,11 @@ from news_crawler.core.category_config_loader import get_category_config_map
 @dataclass(frozen=True)
 class CategoryStrategy:
     """板块策略配置"""
-    name: str                    # 板块名称
-    display_name: str            # 显示名称
-    prompt: str                  # AI Prompt
-    max_input_chars: int         # 输入文本最大字符数（控制token）
+
+    name: str  # 板块名称
+    display_name: str  # 显示名称
+    prompt: str  # AI Prompt
+    max_input_chars: int  # 输入文本最大字符数（控制token）
     # 评分权重已被简化掉（统一由 prompt 产出 |SCORE|）。
 
 

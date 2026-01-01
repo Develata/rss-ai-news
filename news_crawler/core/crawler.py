@@ -41,7 +41,7 @@ class SpiderCore:
     def __init__(self):
         settings = get_settings()
         self.proxy_url = settings.network.azure_proxy
-        self.timeout = getattr(settings.network, 'request_timeout', 20)
+        self.timeout = getattr(settings.network, "request_timeout", 20)
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",

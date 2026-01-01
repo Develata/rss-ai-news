@@ -35,12 +35,8 @@ def send_notification(title, content):
 
     message = MIMEText(full_content, "plain", "utf-8")
 
-    message["From"] = formataddr(
-        (Header(settings.mail.from_name, "utf-8").encode(), mail_user)
-    )
-    message["To"] = formataddr(
-        (Header(settings.mail.to_name, "utf-8").encode(), mail_to)
-    )
+    message["From"] = formataddr((Header(settings.mail.from_name, "utf-8").encode(), mail_user))
+    message["To"] = formataddr((Header(settings.mail.to_name, "utf-8").encode(), mail_to))
     message["Subject"] = Header(title, "utf-8")
 
     try:
