@@ -1,9 +1,10 @@
+import urllib3
+
 import requests
 import trafilatura
 from requests.adapters import HTTPAdapter
 from tenacity import retry, stop_after_attempt, wait_fixed
 from urllib3.util.retry import Retry
-import urllib3
 
 from news_crawler.core.settings import get_settings
 

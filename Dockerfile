@@ -52,7 +52,19 @@ RUN printf "[global]\nindex-url = %s\ntrusted-host = %s\n" "$PIP_INDEX_URL" "$PI
 COPY pyproject.toml README.md ./
 RUN python - <<'PY' > /tmp/requirements.txt
 import pathlib
-import tomllib
+import sys
+
+# Python 3.11+ 有 tomllib，之前版本需要 tomli
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    try:
+        import tomli as tomllib
+    except ImportError:
+        # 如果 tomli 也没有，先安装它
+        import subprocess
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "tomli"])
+        import tomli as tomllib
 
 data = tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))
 deps = data.get('project', {}).get('dependencies', [])

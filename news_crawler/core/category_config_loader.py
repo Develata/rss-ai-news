@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import logging
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
 
 import tomllib
 
@@ -84,7 +85,7 @@ def _package_categories_dir() -> Path:
     """
     优先从环境变量 CONFIG_DIR 读取配置路径。
     如果未设置或路径不存在，则回退到包内的默认路径。
-    
+
     这样可以在 Docker 部署时挂载外部配置目录，无需重建镜像。
     """
     # 1. 优先读取环境变量
@@ -96,7 +97,7 @@ def _package_categories_dir() -> Path:
             return custom_path
         else:
             logger.warning(f"CONFIG_DIR set but path does not exist: {custom_path}")
-    
+
     # 2. 回退到包内默认路径
     default_path = Path(__file__).resolve().parents[1] / "categories"
     logger.info(f"Using default package config directory: {default_path}")
@@ -183,11 +184,11 @@ def load_category_configs() -> list[CategoryConfig]:
             continue
 
     configs.sort(key=lambda c: (c.order, c.key))
-    
+
     if not configs:
         logger.warning(f"No valid category config files loaded from: {root}")
-        logger.info(f"Ensure directory contains .toml files (not starting with underscore)")
-    
+        logger.info("Ensure directory contains .toml files (not starting with underscore)")
+
     return configs
 
 
