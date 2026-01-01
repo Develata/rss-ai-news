@@ -11,7 +11,7 @@ Provides functionality for:
 import os
 import time
 from datetime import datetime, timezone
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 import feedparser
 import requests
@@ -46,8 +46,8 @@ HOTNEWS_CATEGORY = "HotNews_CN"
 
 
 def _fetch_json_feed(
-    url: str, source_name: str, proxy: Optional[str]
-) -> List[PseudoEntry]:
+    url: str, source_name: str, proxy: str | None
+) -> list[PseudoEntry]:
     """
     Fetch and parse JSON-formatted feed.
 
@@ -88,7 +88,7 @@ def _fetch_json_feed(
 
 def _fetch_rss_feed(
     url: str, source_name: str, spider: SpiderCore
-) -> List[Any]:
+) -> list[Any]:
     """
     Fetch and parse RSS feed.
 
@@ -114,7 +114,7 @@ def _fetch_rss_feed(
         return []
 
 
-def _get_published_time(entry: Any) -> Optional[datetime]:
+def _get_published_time(entry: Any) -> datetime | None:
     """
     Extract published time from feed entry.
 
@@ -152,7 +152,7 @@ def _extract_hotnews_content(entry: Any) -> tuple[str, str]:
 
 def _extract_full_article_content(
     link: str, spider: SpiderCore
-) -> Optional[tuple[str, str]]:
+) -> tuple[str, str] | None:
     """
     Extract full article content from URL.
 
@@ -179,7 +179,7 @@ def _extract_full_article_content(
 
 def fetch_and_parse_feed(
     category: str, source_name: str, url: str, cutoff_date: datetime
-) -> List[ParsedItem]:
+) -> list[ParsedItem]:
     """
     Fetch and parse RSS/JSON feed into ParsedItem objects.
 
@@ -199,7 +199,7 @@ def fetch_and_parse_feed(
     proxy = settings.network.azure_proxy
 
     spider = SpiderCore()
-    results: List[ParsedItem] = []
+    results: list[ParsedItem] = []
 
     # Step 1: Download feed
     if url.startswith(JSON_PREFIX):
