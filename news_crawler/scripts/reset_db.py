@@ -1,13 +1,18 @@
+import logging
+
 from news_crawler.core.bootstrap import bootstrap
 from news_crawler.core.database import NewsArticle, get_engine
+
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+logger = logging.getLogger(__name__)
 
 bootstrap()
 
 
 if __name__ == "__main__":
-    print("⚠️ 正在删除 raw_news 表...")
+    logger.warning("Dropping raw_news table...")
     try:
         NewsArticle.__table__.drop(get_engine())
-        print("✅ 删除成功！旧数据已清空。")
+        logger.info("✓ Table dropped successfully! Old data cleared.")
     except Exception as e:
-        print(f"❌ 删除失败 (可能是表不存在): {e}")
+        logger.error(f"Failed to drop table (may not exist): {e}")

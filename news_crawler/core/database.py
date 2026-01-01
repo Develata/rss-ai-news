@@ -27,7 +27,8 @@ class NewsArticle(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     summary = Column(Text, nullable=True)
-    ai_tags = Column(String(255), nullable=True)
+    # 🔥 使用 Text 类型防止 AI 生成的标签过多导致 Data too long 错误
+    ai_tags = Column(Text, nullable=True)
     is_ai_processed = Column(Boolean, default=False, index=True)
     category = Column(String(50), index=True, nullable=True)
     importance_score = Column(Integer, default=0, index=True)
@@ -113,21 +114,25 @@ except Exception:
 
 
 if __name__ == "__main__":
+    import logging
     from news_crawler.core.bootstrap import bootstrap
 
+    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+    logger = logging.getLogger(__name__)
+    
     bootstrap()
-    print("🔌 正在连接数据库...")
+    logger.info("Testing database connection...")
     try:
         engine = get_engine()
         Base.metadata.create_all(engine)
-        print("\n✅✅✅ 成功！数据库连接正常，表结构已同步！")
+        logger.info("✓ Database connection successful, tables synced!")
         
         # 简单检查 WAL 是否生效 (仅针对 SQLite)
         if str(engine.url).startswith("sqlite"):
             with engine.connect() as conn:
                 mode = conn.exec_driver_sql("PRAGMA journal_mode").scalar()
-                print(f"ℹ️  SQLite Journal Mode: {mode} (Expected: wal)")
+                logger.info(f"SQLite Journal Mode: {mode} (Expected: wal)")
                 
     except Exception as e:
-        print(f"\n❌ 连接失败: {e}")
+        logger.error(f"Connection failed: {e}")
         sys.exit(1)

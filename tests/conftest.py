@@ -1,13 +1,25 @@
-import pytest
+"""Pytest configuration and fixtures.
+
+Provides shared test fixtures and configuration:
+- Mock environment variables for unit tests
+- Prevents accidental use of real credentials in tests
+"""
+
 import os
+
+import pytest
+
 
 @pytest.fixture(autouse=True)
 def mock_env(monkeypatch):
+    """Automatically set mock environment variables for all tests.
+    
+    For 'live' tests, test functions should explicitly read from
+    os.environ or override these mocked values.
+    
+    This prevents accidental API calls or credential leaks during
+    unit testing.
     """
-    自动为所有测试设置虚假环境变量。
-    如果是真实联网测试 (live)，测试函数内部会覆盖或者读取真实系统变量。
-    """
-    # 设置默认 Mock 值，防止代码因找不到 Key 报错
     monkeypatch.setenv("AI_API_KEY", "sk-mock-key")
     monkeypatch.setenv("AI_URL", "https://api.mock.com")
     monkeypatch.setenv("AI_MODEL", "gpt-mock")

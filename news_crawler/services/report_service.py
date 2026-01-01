@@ -159,7 +159,10 @@ def run_publishing_job(session):
                 logger.info(f"    😴 Skipped {cfg['title_prefix']}")
 
         except Exception as e:
-            logger.error(f"    ❌ Error generating report for [{category_key}]: {e}")
+            logger.error(f"    ❌ 生成日报失败 [{category_key}]")
+            logger.error(f"       错误类型: {type(e).__name__}")
+            logger.error(f"       错误信息: {e}")
+            logger.error(f"       💡 该分类将被跳过，不影响其他分类")
             continue
 
     # 5. 本地落盘（与上传后的相同相对路径结构），不影响后续推送
@@ -184,9 +187,21 @@ def run_publishing_job(session):
             # 调用批量推送
             publisher.publish_changes(pending_updates, commit_msg)
             
+        except ValueError as e:
+            # GitHub 配置或认证错误
+            logger.error(f"❌ GitHub 配置错误")
+            logger.error(f"   {e}")
+            return 0
+        except RuntimeError as e:
+            # GitHub API 操作错误
+            logger.error(f"❌ GitHub 推送失败")
+            logger.error(f"   {e}")
+            return 0
         except Exception as e:
-            logger.error(f"❌ Batch Publish Failed: {e}")
-            # 如果推送失败，这里返回 0 以便触发报警
+            # 其他未预期的错误
+            logger.error(f"❌ 发布失败: {type(e).__name__}")
+            logger.error(f"   错误详情: {e}")
+            logger.error(f"   💡 请检查网络连接和 GitHub 配置")
             return 0
             
     return published_count

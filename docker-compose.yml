@@ -17,6 +17,8 @@ services:
     volumes:
       - ./logs:/app/logs:rw
       - ./data:/app/data:rw
+      # 挂载配置文件目录（可在宿主机直接修改 RSS 源，无需重建镜像）
+      - ./news_crawler/categories:/app/config/categories:ro
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 
@@ -31,6 +33,8 @@ services:
       NO_PROXY: "127.0.0.1,localhost"
       PYTHONPATH: /app
       PYTHONUNBUFFERED: "1"
+      # 指定外部配置目录路径
+      CONFIG_DIR: /app/config/categories
 
     # 4. 网络模式
     network_mode: "host"

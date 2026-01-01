@@ -1,18 +1,32 @@
-# 文件路径：/app/tests/test_feeds.py
-import pytest
-import requests
+"""RSS feed connectivity and configuration tests.
+
+This module tests:
+- RSS category configuration
+- Feed connectivity and availability
+- Support for different feed formats (RSS, Atom, JSON)
+"""
+
 import os
 
+import pytest
+import requests
+
 from news_crawler.core.config import RSS_CATEGORIES
+from news_crawler.core.crawler import SpiderCore
 
 
 def test_rss_categories_are_configured():
+    """Verify RSS categories are properly configured."""
     assert isinstance(RSS_CATEGORIES, dict)
     assert len(RSS_CATEGORIES) >= 5
-from news_crawler.core.crawler import SpiderCore
 
-# 扁平化配置，生成参数列表 [(category, name, url), ...]
+
 def get_feed_params():
+    """Generate test parameters for all configured feeds.
+    
+    Returns:
+        List of tuples: [(category, name, url), ...]
+    """
     params = []
     for cat, sources in RSS_CATEGORIES.items():
         for name, url in sources.items():
@@ -22,28 +36,33 @@ def get_feed_params():
 @pytest.mark.live
 @pytest.mark.parametrize("category, name, url", get_feed_params())
 def test_rss_feed_connectivity(category, name, url):
-    """
-    [真实测试] 批量测试所有 RSS 源是否可达
+    """Test connectivity for all configured RSS feeds.
+    
+    Run with: pytest -m live
+    Tests both standard RSS/Atom feeds and JSON API endpoints.
     """
     spider = SpiderCore()
     
-    # ✅ 现在这里不会报错了
     if not os.getenv('AZURE_PROXY'):
-        print("⚠️ Warning: No Proxy configured, some feeds might fail.")
+        print("\n⚠️  Warning: No proxy configured, some feeds might fail.")
 
-    print(f"Testing {name}...")
+    print(f"\nTesting {category}/{name}...")
     
     if url.startswith("JSON|"):
+        # JSON API endpoint
         real_url = url.split("|")[1]
         try:
             resp = requests.get(real_url, timeout=10)
-            assert resp.status_code == 200, f"JSON API {name} 返回状态码 {resp.status_code}"
-        except Exception as e:
-            pytest.fail(f"JSON API {name} 连接失败: {e}")
+            assert resp.status_code == 200, (
+                f"JSON API {name} returned status {resp.status_code}"
+            )
+        except requests.RequestException as e:
+            pytest.fail(f"JSON API {name} connection failed: {e}")
     else:
+        # Standard RSS/Atom feed
         try:
             content = spider.fetch(url)
-            assert content is not None, f"RSS {name} 抓取内容为空"
-            assert len(content) > 50, f"RSS {name} 内容过短"
+            assert content is not None, f"RSS {name} returned empty content"
+            assert len(content) > 50, f"RSS {name} content too short"
         except Exception as e:
-            pytest.fail(f"RSS {name} 连接异常: {e}")
+            pytest.fail(f"RSS {name} connection failed: {e}")

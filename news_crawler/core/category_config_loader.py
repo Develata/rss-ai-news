@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import logging
+import os
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
 
 import tomllib
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -77,8 +81,26 @@ def _as_opt_str(value: Any, where: str) -> str | None:
 
 
 def _package_categories_dir() -> Path:
-    # news_crawler/core/category_config_loader.py -> news_crawler/categories/
-    return Path(__file__).resolve().parents[1] / "categories"
+    """
+    优先从环境变量 CONFIG_DIR 读取配置路径。
+    如果未设置或路径不存在，则回退到包内的默认路径。
+    
+    这样可以在 Docker 部署时挂载外部配置目录，无需重建镜像。
+    """
+    # 1. 优先读取环境变量
+    custom_dir = os.getenv("CONFIG_DIR")
+    if custom_dir:
+        custom_path = Path(custom_dir).resolve()
+        if custom_path.exists() and custom_path.is_dir():
+            logger.info(f"Using external config directory: {custom_path}")
+            return custom_path
+        else:
+            logger.warning(f"CONFIG_DIR set but path does not exist: {custom_path}")
+    
+    # 2. 回退到包内默认路径
+    default_path = Path(__file__).resolve().parents[1] / "categories"
+    logger.info(f"Using default package config directory: {default_path}")
+    return default_path
 
 
 def _load_one(path: Path) -> CategoryConfig:
@@ -149,12 +171,23 @@ def load_category_configs() -> list[CategoryConfig]:
                 raise ValueError(f"Duplicate category key: {cfg.key}")
             seen.add(cfg.key)
             configs.append(cfg)
+        except ValueError as e:
+            # 配置验证错误（格式错误、字段校验失败等）
+            logger.error(f"Config validation error in {path.name}: {e}")
+            logger.info(f"Hint: Check TOML format and required fields in {path.name}")
+            continue
         except Exception as e:
-            # 捕获所有配置错误（格式错误、字段校验失败等），打印日志并跳过，防止系统崩溃
-            print(f"❌ [Config Error] Failed to load {path.name}: {e}")
+            # 其他错误（文件读取、解析等）
+            logger.error(f"Config load error in {path.name}: {type(e).__name__}: {e}")
+            logger.debug(f"File path: {path}")
             continue
 
     configs.sort(key=lambda c: (c.order, c.key))
+    
+    if not configs:
+        logger.warning(f"No valid category config files loaded from: {root}")
+        logger.info(f"Ensure directory contains .toml files (not starting with underscore)")
+    
     return configs
 
 

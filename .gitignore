@@ -75,3 +75,8 @@ repomix-output.xml
 
 # Docker overrides
 docker-compose.override.yml
+
+# Build artifacts
+*.tar
+*.tar.gz
+*.zip

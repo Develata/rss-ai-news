@@ -1,0 +1,76 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pytype/
+
+# Virtualenv
+.venv/
+venv/
+ENV/
+env/
+__pypackages__/
+
+# Local data and logs
+data/
+logs/
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Tests (keep in Git, exclude from Docker)
+tests/
+pytest.ini
+.coverage
+coverage.xml
+htmlcov/
+
+# Build artifacts
+*.tar
+*.tar.gz
+*.zip
+dist/
+build/
+*.egg-info/
+
+# IDE and editor files
+.vscode/
+.idea/
+.DS_Store
+*~
+*.swp
+*.swo
+
+# Documentation (except README)
+docs/
+*.md
+!README.md
+
+# CI/CD
+.github/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Docker
+docker-compose.override.yml
+.docker_env
+
+# Misc
+repomix-output.xml

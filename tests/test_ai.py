@@ -1,16 +1,27 @@
-# 文件路径：/app/tests/test_ai.py
-import pytest
-import os
-from unittest.mock import MagicMock
+"""AI service and category strategy tests.
 
-from news_crawler.services.ai_service import _process_single_article_logic, get_ai_summary
+This module tests:
+- AI response parsing logic
+- Content filtering mechanisms
+- Category-specific strategies
+- Integration with real AI APIs (when marked as 'live')
+"""
+
+import os
+
+import pytest
+
 from news_crawler.core.category_strategies import (
-    get_strategy,
     CATEGORY_STRATEGIES,
     CategoryStrategy,
+    get_strategy,
+)
+from news_crawler.services.ai_service import (
+    _process_single_article_logic,
+    get_ai_summary,
 )
 
-# 模拟的 AI 返回内容 (包含摘要、Tags、Score)
+# Mock AI response for testing parsing logic
 MOCK_AI_RESPONSE = """
 摘要内容。
 |TAGS| Linux, Kernel
@@ -18,59 +29,67 @@ MOCK_AI_RESPONSE = """
 """
 
 def test_process_logic_parsing(mocker):
+    """Test AI response parsing logic without consuming API quota.
+    
+    Verifies that the regex patterns correctly extract:
+    - Summary text
+    - Tags
+    - Score
     """
-    [单元测试] 测试正则解析逻辑是否正确
-    不消耗 API 额度，通过 Mock 模拟 AI 返回
-    """
-    # 1. Mock get_ai_summary 函数
-    mocker.patch('news_crawler.services.ai_service.get_ai_summary', return_value=MOCK_AI_RESPONSE)
+    mocker.patch(
+        "news_crawler.services.ai_service.get_ai_summary",
+        return_value=MOCK_AI_RESPONSE
+    )
 
-    # 2. 运行逻辑
     result = _process_single_article_logic(
         art_id=1,
-        content_text="原文内容...",
+        content_text="Sample article content...",
         category="Tech",
         title="Linux News"
     )
 
-    # 3. 断言 (机器自动检查，不需要人眼看)
     assert result["status"] == "success"
     assert result["score"] == 85
     assert "Linux" in result["tags"]
 
+
 def test_process_logic_filtering(mocker):
-    """
-    [单元测试] 测试广告过滤逻辑
-    """
-    mocker.patch('news_crawler.services.ai_service.get_ai_summary', return_value="PASS")
+    """Test content filtering mechanism.
     
-    result = _process_single_article_logic(1, "广告", "Tech", "Ad")
+    Verifies that low-quality content marked as 'PASS' by AI
+    is correctly filtered out with score 0.
+    """
+    mocker.patch(
+        "news_crawler.services.ai_service.get_ai_summary",
+        return_value="PASS"
+    )
+    
+    result = _process_single_article_logic(1, "Ad content", "Tech", "Ad")
+    
     assert result["status"] == "filtered"
     assert result["score"] == 0
 
 @pytest.mark.live
 def test_ai_connectivity_real():
-    """
-    [真实测试] 真正调用 API
-    运行命令: pytest -m live
+    """Test real AI API connectivity.
+    
+    Run with: pytest -m live
+    Skipped if using mock credentials.
     """
     if os.getenv("AI_API_KEY", "").startswith("sk-mock"):
-        pytest.skip("使用的是 Mock Key，跳过真实 API 调用")
+        pytest.skip("Using mock API key, skipping real API call")
         
-    response = get_ai_summary("测试文本", "测试")
+    response = get_ai_summary("Test content", "Test category")
+    
     assert "API Key missing" not in response
     assert len(response) > 0
 
 
-# ============================================================
-# 策略模块测试
-# ============================================================
-
 class TestCategoryStrategies:
-    """测试分类策略模块"""
+    """Test suite for category-specific analysis strategies."""
 
     def test_all_categories_have_strategy(self):
-        """确保所有板块都有对应策略"""
+        """Verify all expected categories have corresponding strategies."""
         expected_categories = [
             "HotNews_CN",
             "Epochal_Global", 
@@ -84,7 +103,7 @@ class TestCategoryStrategies:
             assert strategy.name == cat
 
     def test_strategy_has_required_fields(self):
-        """测试策略包含所有必要字段"""
+        """Verify all strategies contain required fields with valid values."""
         for name, strategy in CATEGORY_STRATEGIES.items():
             assert isinstance(strategy, CategoryStrategy)
             assert strategy.name == name
@@ -93,31 +112,32 @@ class TestCategoryStrategies:
             assert 1000 <= strategy.max_input_chars <= 3000
 
     def test_strategies_loaded_from_category_configs(self):
-        """策略应来自板块配置文件（TOML），确保至少加载 5 个板块"""
+        """Verify strategies are loaded from TOML config files."""
         assert len(CATEGORY_STRATEGIES) >= 5
 
     def test_unknown_category_returns_default(self):
-        """未知分类应返回默认策略"""
+        """Verify unknown categories fall back to default strategy."""
         strategy = get_strategy("UnknownCategory")
         assert strategy.name == "NetTech_Hardcore"
 
     def test_max_input_chars_varies_by_category(self):
-        """不同板块应有不同的token限制"""
+        """Verify different categories have different token limits."""
         hotnews = get_strategy("HotNews_CN")
         epochal = get_strategy("Epochal_Global")
         math = get_strategy("Math_Research")
         
-        # 舆情热点用最短的截断（1500）
+        # Hot news uses shortest truncation (1500)
         assert hotnews.max_input_chars < epochal.max_input_chars
-        # 世界时政用最长的截断（2500）
+        # Global politics uses longest truncation (2500)
         assert epochal.max_input_chars >= math.max_input_chars
 
     def test_prompts_are_category_specific(self):
-        """每个板块的prompt应包含特定关键词"""
+        """Verify each category prompt contains specific keywords."""
         hotnews = get_strategy("HotNews_CN")
         math = get_strategy("Math_Research")
         ai = get_strategy("AI_ML_Research")
         
         assert "热度" in hotnews.prompt
         assert "学术" in math.prompt
+        assert "AI" in ai.prompt or "ML" in ai.prompt or "机器学习" in ai.prompt
         assert "AI" in ai.prompt or "ML" in ai.prompt

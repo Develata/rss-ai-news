@@ -1,3 +1,4 @@
+import logging
 import smtplib
 from datetime import datetime
 from email.header import Header
@@ -6,8 +7,17 @@ from email.utils import formataddr
 
 from news_crawler.core.settings import get_settings
 
+logger = logging.getLogger(__name__)
+
 
 def send_notification(title, content):
+    """
+    Send email notification via SMTP.
+
+    Args:
+        title: Email subject
+        content: Email body content
+    """
     settings = get_settings()
 
     mail_host = settings.mail.host
@@ -17,7 +27,7 @@ def send_notification(title, content):
     mail_to = settings.mail.to
 
     if not mail_host or not mail_user or not mail_pass:
-        print("⚠️ 邮件配置缺失，跳过发送通知。")
+        logger.warning("Mail configuration missing, skipping notification")
         return
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -38,6 +48,10 @@ def send_notification(title, content):
         server.login(mail_user, mail_pass)
         server.sendmail(mail_user, [mail_to], message.as_string())
         server.quit()
-        print(f"📧 [通知] 邮件已发送至 {mail_to}")
-    except Exception as e:
-        print(f"❌ [通知] 邮件发送失败: {e}")
+        logger.info(f"Email notification sent to {mail_to}")
+    except smtplib.SMTPAuthenticationError as e:
+        logger.error(f"Email authentication failed: {e}")
+    except smtplib.SMTPException as e:
+        logger.error(f"SMTP error occurred: {e}")
+    except OSError as e:
+        logger.error(f"Network error sending email: {e}")

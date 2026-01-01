@@ -1,14 +1,19 @@
 <div align="center">
 
-# RSS AI News Crawler
+# 📰 RSS AI News Crawler
 
-**你的私人 AI 情报官**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Docker](https://img.shields.io/badge/docker-ready-brightgreen.svg)](https://hub.docker.com/)
+[![CI Status](https://github.com/Develata/rss-ai-news/workflows/CI/badge.svg)](https://github.com/Develata/rss-ai-news/actions)
 
-全自动化的信息获取、AI 深度分析与日报生成系统。
+**你的私人 AI 情报官 | 全自动新闻聚合、分析与发布系统**
 
-[特性] • [Docker 部署] • [本地开发] • [配置指南]
+[快速开始](#-docker-快速部署-推荐) • [特性](#-特性--features) • [配置指南](#️-配置指南--configuration) • [贡献](#-贡献)
 
 </div>
+
+---
 
 ## 📖 简介 | Introduction
 
@@ -58,13 +63,26 @@ cp .env.example .env
 * `GITHUB_TOKEN` & `REPO_NAME`: 用于发布日报的 GitHub 仓库信息。
 * `DB_BACKEND`: 设为 `sqlite` 即可免去配置 PostgreSQL。
 
-### 3. 启动服务
+### 3. 自定义配置（可选）
+
+项目支持在容器外部修改配置文件，无需重建镜像：
+
+* 所有板块配置位于 `./news_crawler/categories/` 目录
+* 修改任意 `.toml` 文件后，只需重启容器即可生效：
+
+```bash
+docker compose restart
+```
+
+> **提示**：配置文件通过卷挂载到容器内的 `/app/config/categories`，环境变量 `CONFIG_DIR` 会指向该路径。系统会优先加载外部配置，若未找到则回退到镜像内置配置。
+
+### 4. 启动服务
 
 ```bash
 docker compose up -d
 ```
 
-### 4. 查看运行状态
+### 5. 查看运行状态
 
 容器启动后会自动运行 Crontab：
 
@@ -171,11 +189,13 @@ pytest -m live
 - AI 截断与 Prompt（控制 token、评分/摘要标准）
 - 日报标题、输出目录、每板块最大条数等
 
-修改配置后，重启容器即可生效：
+**Docker 部署优势**：配置文件已挂载到宿主机，修改后只需重启容器即可生效，无需重新构建镜像：
 
 ```bash
 docker compose restart
 ```
+
+> **技术说明**：系统通过环境变量 `CONFIG_DIR` 优先加载外部配置目录。Docker Compose 会将宿主机的 `./news_crawler/categories` 挂载到容器内的 `/app/config/categories`，实现配置热更新。
 
 ### 修改订阅源 (RSS Feeds)
 
