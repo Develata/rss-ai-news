@@ -104,20 +104,20 @@ def run_publishing_job(session):
     publisher = GitHubPublisher()
     local_root = (os.getenv("REPORT_LOCAL_DIR") or "./data/news").strip() or "./data/news"
     local_root_path = Path(local_root)
-    
+
     # 1. 准备环境
     tz = ZoneInfo("Asia/Shanghai")
     now = datetime.now(tz)
     current_year = str(now.year)
     current_date_file = now.strftime("%Y%m%d")
     time_window = datetime.now(timezone.utc) - timedelta(hours=25)
-    
+
     # 2. 查询数据
     all_articles = (
         session.query(NewsArticle)
         .filter(
             NewsArticle.created_at >= time_window,
-            NewsArticle.is_ai_processed == True,
+            NewsArticle.is_ai_processed.is_(True),
             NewsArticle.category.in_(list(REPORT_CONFIGS.keys())),
         )
         .order_by(
@@ -162,7 +162,7 @@ def run_publishing_job(session):
             logger.error(f"    ❌ 生成日报失败 [{category_key}]")
             logger.error(f"       错误类型: {type(e).__name__}")
             logger.error(f"       错误信息: {e}")
-            logger.error(f"       💡 该分类将被跳过，不影响其他分类")
+            logger.error("       💡 该分类将被跳过，不影响其他分类")
             continue
 
     # 5. 本地落盘（与上传后的相同相对路径结构），不影响后续推送
@@ -189,19 +189,19 @@ def run_publishing_job(session):
             
         except ValueError as e:
             # GitHub 配置或认证错误
-            logger.error(f"❌ GitHub 配置错误")
+            logger.error("❌ GitHub 配置错误")
             logger.error(f"   {e}")
             return 0
         except RuntimeError as e:
             # GitHub API 操作错误
-            logger.error(f"❌ GitHub 推送失败")
+            logger.error("❌ GitHub 推送失败")
             logger.error(f"   {e}")
             return 0
         except Exception as e:
             # 其他未预期的错误
             logger.error(f"❌ 发布失败: {type(e).__name__}")
             logger.error(f"   错误详情: {e}")
-            logger.error(f"   💡 请检查网络连接和 GitHub 配置")
+            logger.error("   💡 请检查网络连接和 GitHub 配置")
             return 0
             
     return published_count

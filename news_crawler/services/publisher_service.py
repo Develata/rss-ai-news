@@ -51,7 +51,7 @@ class GitHubPublisher:
             return
 
         repo = self.repo
-        
+
         # 1. 获取默认分支 (main 或 master) 及其最新的 Commit
         default_branch = repo.default_branch
         ref = repo.get_git_ref(f"heads/{default_branch}")

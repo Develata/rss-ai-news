@@ -1,6 +1,7 @@
-import urllib3
 import requests
 import trafilatura
+import urllib3
+
 from requests.adapters import HTTPAdapter
 from tenacity import retry, stop_after_attempt, wait_fixed
 from urllib3.util.retry import Retry
