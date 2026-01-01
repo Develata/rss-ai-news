@@ -1,5 +1,4 @@
 import urllib3
-
 import requests
 import trafilatura
 from requests.adapters import HTTPAdapter
