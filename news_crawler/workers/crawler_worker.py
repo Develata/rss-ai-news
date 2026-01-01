@@ -37,14 +37,6 @@ REQUEST_TIMEOUT = 20
 HOTNEWS_CATEGORY = "HotNews_CN"
 
 
-# Constants
-JSON_PREFIX = "JSON|"
-JSON_DATA_KEY = "data"
-JSON_MAX_ITEMS = 30
-REQUEST_TIMEOUT = 20
-HOTNEWS_CATEGORY = "HotNews_CN"
-
-
 def _fetch_json_feed(
     url: str, source_name: str, proxy: str | None
 ) -> list[PseudoEntry]:
