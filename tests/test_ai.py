@@ -28,9 +28,10 @@ MOCK_AI_RESPONSE = """
 |SCORE| 85
 """
 
+
 def test_process_logic_parsing(mocker):
     """Test AI response parsing logic without consuming API quota.
-    
+
     Verifies that the regex patterns correctly extract:
     - Summary text
     - Tags
@@ -38,14 +39,14 @@ def test_process_logic_parsing(mocker):
     """
     mocker.patch(
         "news_crawler.services.ai_service.get_ai_summary",
-        return_value=MOCK_AI_RESPONSE
+        return_value=MOCK_AI_RESPONSE,
     )
 
     result = _process_single_article_logic(
         art_id=1,
         content_text="Sample article content...",
         category="Tech",
-        title="Linux News"
+        title="Linux News",
     )
 
     assert result["status"] == "success"
@@ -55,32 +56,33 @@ def test_process_logic_parsing(mocker):
 
 def test_process_logic_filtering(mocker):
     """Test content filtering mechanism.
-    
+
     Verifies that low-quality content marked as 'PASS' by AI
     is correctly filtered out with score 0.
     """
     mocker.patch(
         "news_crawler.services.ai_service.get_ai_summary",
-        return_value="PASS"
+        return_value="PASS",
     )
-    
+
     result = _process_single_article_logic(1, "Ad content", "Tech", "Ad")
-    
+
     assert result["status"] == "filtered"
     assert result["score"] == 0
+
 
 @pytest.mark.live
 def test_ai_connectivity_real():
     """Test real AI API connectivity.
-    
+
     Run with: pytest -m live
     Skipped if using mock credentials.
     """
     if os.getenv("AI_API_KEY", "").startswith("sk-mock"):
         pytest.skip("Using mock API key, skipping real API call")
-        
+
     response = get_ai_summary("Test content", "Test category")
-    
+
     assert "API Key missing" not in response
     assert len(response) > 0
 
@@ -92,7 +94,7 @@ class TestCategoryStrategies:
         """Verify all expected categories have corresponding strategies."""
         expected_categories = [
             "HotNews_CN",
-            "Epochal_Global", 
+            "Epochal_Global",
             "NetTech_Hardcore",
             "AI_ML_Research",
             "Math_Research",
@@ -125,7 +127,7 @@ class TestCategoryStrategies:
         hotnews = get_strategy("HotNews_CN")
         epochal = get_strategy("Epochal_Global")
         math = get_strategy("Math_Research")
-        
+
         # Hot news uses shortest truncation (1500)
         assert hotnews.max_input_chars < epochal.max_input_chars
         # Global politics uses longest truncation (2500)
@@ -136,7 +138,7 @@ class TestCategoryStrategies:
         hotnews = get_strategy("HotNews_CN")
         math = get_strategy("Math_Research")
         ai = get_strategy("AI_ML_Research")
-        
+
         assert "热度" in hotnews.prompt
         assert "学术" in math.prompt
         assert "AI" in ai.prompt or "ML" in ai.prompt or "机器学习" in ai.prompt

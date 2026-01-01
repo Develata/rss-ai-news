@@ -1,7 +1,7 @@
 import logging
 
 import requests
-from requests.exceptions import RequestException, Timeout, ConnectionError
+from requests.exceptions import ConnectionError, RequestException, Timeout
 
 from news_crawler.core.settings import get_settings
 
@@ -17,7 +17,7 @@ def send_webhook(text: str):
     url = get_settings().mail.webhook_url  # 假设你在 settings 里加了这个字段
     if not url:
         return
-    
+
     # 以飞书/钉钉/Discord 为例，通常就是一个 POST 请求
     try:
         # 这是一个通用的 JSON payload，具体看你用什么 IM

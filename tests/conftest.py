@@ -5,18 +5,16 @@ Provides shared test fixtures and configuration:
 - Prevents accidental use of real credentials in tests
 """
 
-import os
-
 import pytest
 
 
 @pytest.fixture(autouse=True)
 def mock_env(monkeypatch):
     """Automatically set mock environment variables for all tests.
-    
+
     For 'live' tests, test functions should explicitly read from
     os.environ or override these mocked values.
-    
+
     This prevents accidental API calls or credential leaks during
     unit testing.
     """

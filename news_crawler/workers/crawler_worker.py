@@ -8,14 +8,13 @@ Provides functionality for:
 - Content hashing for deduplication
 """
 
-import os
 import time
 from datetime import datetime, timezone
 from typing import Any
 
 import feedparser
 import requests
-from requests.exceptions import RequestException, Timeout, ConnectionError
+from requests.exceptions import ConnectionError, RequestException, Timeout
 
 from news_crawler.core.crawler import SpiderCore
 from news_crawler.core.settings import get_settings

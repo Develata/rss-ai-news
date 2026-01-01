@@ -18,7 +18,7 @@ import requests
 @pytest.mark.live
 def test_proxy_connectivity():
     """Test proxy connectivity to external sites.
-    
+
     Run with: pytest -m live
     Skipped if AZURE_PROXY is not configured.
     """
@@ -33,7 +33,7 @@ def test_proxy_connectivity():
         resp = requests.get(
             "https://www.google.com",
             proxies=proxies,
-            timeout=15
+            timeout=15,
         )
         assert resp.status_code == 200
     except requests.RequestException as e:
@@ -42,14 +42,14 @@ def test_proxy_connectivity():
 @pytest.mark.live
 def test_email_sending_real():
     """Test real email sending functionality.
-    
+
     Run with: pytest -m live
     Skipped if using mock credentials or missing configuration.
-    
+
     Note: Uses real system environment variables, not mocked ones.
     """
     mail_host = os.environ.get('MAIL_HOST')
-    
+
     if not mail_host or "mock" in mail_host:
         pytest.skip("Mock environment or missing config, skipping real email test")
 

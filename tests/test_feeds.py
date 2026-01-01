@@ -6,8 +6,6 @@ This module tests:
 - Support for different feed formats (RSS, Atom, JSON)
 """
 
-import os
-
 import pytest
 import requests
 
@@ -23,7 +21,7 @@ def test_rss_categories_are_configured():
 
 def get_feed_params():
     """Generate test parameters for all configured feeds.
-    
+
     Returns:
         List of tuples: [(category, name, url), ...]
     """
@@ -37,15 +35,15 @@ def get_feed_params():
 @pytest.mark.parametrize("category, name, url", get_feed_params())
 def test_rss_feed_connectivity(category, name, url):
     """Test connectivity for all configured RSS feeds.
-    
+
     Run with: pytest -m live
     Tests both standard RSS/Atom feeds and JSON API endpoints.
     """
     spider = SpiderCore()
-    
+
     # Note: Tests may fail without proxy configuration (set AZURE_PROXY)
     # pytest will show test name automatically, no need for print statements
-    
+
     if url.startswith("JSON|"):
         # JSON API endpoint
         real_url = url.split("|")[1]

@@ -127,7 +127,7 @@ def run_publishing_job(session):
         )
         .all()
     )
-    
+
     # 3. 数据分组
     articles_by_category = {}
     for art in all_articles:
@@ -145,11 +145,11 @@ def run_publishing_job(session):
             articles = articles_by_category.get(category_key, [])[:max_items]
             if articles:
                 logger.info(f"    🛠️ Generating MD for {cfg['title_prefix']} ({len(articles)} items)...")
-                
+
                 content = generate_md_content(articles, cfg)
                 folder_name = cfg.get("folder", "Other")
                 file_path = f"{folder_name}/{current_year}/{current_date_file}.md"
-                
+
                 pending_updates.append({
                     "path": file_path,
                     "content": content
@@ -183,10 +183,10 @@ def run_publishing_job(session):
         try:
             # 构造 Commit Message
             commit_msg = f"🤖 Bot Update: {current_date_file} Report ({', '.join(generated_titles)})"
-            
+
             # 调用批量推送
             publisher.publish_changes(pending_updates, commit_msg)
-            
+
         except ValueError as e:
             # GitHub 配置或认证错误
             logger.error("❌ GitHub 配置错误")
@@ -203,5 +203,5 @@ def run_publishing_job(session):
             logger.error(f"   错误详情: {e}")
             logger.error("   💡 请检查网络连接和 GitHub 配置")
             return 0
-            
+
     return published_count
