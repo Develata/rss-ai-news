@@ -41,59 +41,65 @@
 
 ## 🐳 Docker 快速部署 (推荐)
 
-最简单的运行方式是使用 Docker Compose。
+项目镜像已发布到 GitHub Container Registry：`ghcr.io/develata/rss-ai-news`。
 
-### 1. 克隆仓库
+如果你**只关心运行**、并希望**本地占用最小**，完全可以不克隆源代码：只准备少量文件/目录，然后直接拉取镜像运行。
+
+### 方案 A：不克隆源码（推荐，最小落地）
+
+只下载 2 个文件（`docker-compose.yml` + `.env.example`），再创建运行所需目录即可：
+
+```bash
+mkdir rss-ai-news && cd rss-ai-news
+mkdir -p logs data
+curl -O https://raw.githubusercontent.com/Develata/rss-ai-news/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/Develata/rss-ai-news/main/.env.example
+cp .env.example .env
+docker compose up -d --pull always
+```
+
+> **版本锁定**：在 `.env` 里新增/修改 `IMAGE_TAG=latest`（或具体版本号），compose 会拉取 `ghcr.io/develata/rss-ai-news:${IMAGE_TAG}`。
+
+> **进一步减少本地文件**：默认 compose 会挂载 `./news_crawler/categories` 作为外部板块配置热更新。
+> - 如果你不需要自定义板块、希望直接用镜像内置配置：可在 `docker-compose.yml` 中删除/注释该挂载行，从而不必在本地准备 `news_crawler/categories` 目录。
+
+### 方案 B：不用 Compose（最少文件）
+
+如果你连 `docker-compose.yml` 都不想保存，可以直接 `docker run`（仍建议保留本地 `.env` 以避免把密钥写进命令行历史）：
+
+```bash
+mkdir -p rss-ai-news/{logs,data}
+cd rss-ai-news
+
+# 仍然建议从仓库下载一份 .env.example 作为模板
+curl -O https://raw.githubusercontent.com/Develata/rss-ai-news/main/.env.example
+cp .env.example .env
+
+docker run -d \
+    --name news_crawler \
+    --pull=always \
+    --restart unless-stopped \
+    --env-file .env \
+    -v "$(pwd)/logs:/app/logs:rw" \
+    -v "$(pwd)/data:/app/data:rw" \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v /etc/timezone:/etc/timezone:ro \
+    ghcr.io/develata/rss-ai-news:latest
+```
+
+> 如果需要外部板块配置热更新，再额外挂载 `$(pwd)/news_crawler/categories:/app/config/categories:ro` 并创建对应目录即可。
+
+### 方案 C：需要改配置/二次开发（再克隆仓库）
+
+如果你希望在仓库内直接编辑板块配置、或进行开发调试，按传统方式克隆即可：
 
 ```bash
 git clone https://github.com/Develata/rss-ai-news.git
 cd rss-ai-news
-```
-
-### 2. 配置环境变量
-
-复制示例配置文件并修改：
-
-```bash
 cp .env.example .env
 ```
 
-使用文本编辑器修改 `.env` 文件。**最简配置**仅需填写以下几项：
-
-* `AI_API_KEY`: 你的 LLM API 密钥。
-* `AI_URL`: LLM 的 Base URL (例如阿里云 Qwen、OpenAI 等)。
-* `GITHUB_TOKEN` & `REPO_NAME`: 用于发布日报的 GitHub 仓库信息。
-* `DB_BACKEND`: 设为 `sqlite` 即可免去配置 PostgreSQL。
-
-> **💡 镜像说明**: 项目已自动构建并发布到 [GitHub Container Registry](https://github.com/Develata/rss-ai-news/pkgs/container/rss-ai-news)，默认使用 `latest` 标签。如需指定版本，修改 `.env.docker` 中的 `IMAGE_TAG`。
-
-### 3. 自定义配置（可选）
-
-项目支持在容器外部修改配置文件，无需重建镜像：
-
-* 所有板块配置位于 `./news_crawler/categories/` 目录
-* 修改任意 `.toml` 文件后，只需重启容器即可生效：
-
-```bash
-docker compose restart
-```
-
-> **提示**：配置文件通过卷挂载到容器内的 `/app/config/categories`，环境变量 `CONFIG_DIR` 会指向该路径。系统会优先加载外部配置，若未找到则回退到镜像内置配置。
-
-### 4. 启动服务
-
-```bash
-# 拉取最新镜像并启动（推荐）
-docker compose pull
-docker compose up -d
-
-# 或使用一行命令
-docker compose up -d --pull always
-```
-
-> **提示**: 如需本地构建而非使用预构建镜像，编辑 `docker-compose.yml`，取消注释 `build:` 部分并注释 `image:` 行。
-
-### 5. 查看运行状态
+### 查看运行状态
 
 容器启动后会自动运行 Crontab：
 
