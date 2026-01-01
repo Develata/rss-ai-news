@@ -36,7 +36,7 @@ def main() -> None:
 
     except ValueError as e:
         # 配置错误（GitHub Token、仓库名等）
-        logger.error(f"❌ [Phase 3 Failed] 配置错误")
+        logger.error("❌ [Phase 3 Failed] 配置错误")
         logger.error(f"   {e}")
         try:
             send_notification("❌ 爬虫发布失败 - 配置错误", str(e))
@@ -45,7 +45,7 @@ def main() -> None:
         sys.exit(1)
     except RuntimeError as e:
         # GitHub API 操作错误
-        logger.error(f"❌ [Phase 3 Failed] 发布操作失败")
+        logger.error("❌ [Phase 3 Failed] 发布操作失败")
         logger.error(f"   {e}")
         try:
             send_notification("❌ 爬虫发布失败 - GitHub 操作错误", str(e))
@@ -77,7 +77,7 @@ def main() -> None:
                 ai_processed_count = (
                     session.query(NewsArticle)
                     .filter(
-                        NewsArticle.is_ai_processed == True,
+                        NewsArticle.is_ai_processed.is_(True),
                         NewsArticle.created_at >= time_window,
                     )
                     .count()

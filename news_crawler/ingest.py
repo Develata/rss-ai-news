@@ -37,7 +37,7 @@ def main() -> None:
     # 错误统计
     has_critical_error = False
     new_raw_count = 0
-    
+
     try:
         with SessionLocal() as session:
             new_raw_count = run_crawler_job(session)
@@ -64,7 +64,7 @@ def main() -> None:
 
     duration = time.time() - start_time
     logger.info(f"--- 🚜 采集任务结束 (耗时: {duration:.2f}s) ---")
-    
+
     # 返回错误码：确保 Docker/Cron 能检测到失败
     if has_critical_error:
         logger.error("❌ 任务执行过程中发生严重错误，返回退出码 1")

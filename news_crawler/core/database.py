@@ -124,11 +124,12 @@ except Exception:
 
 if __name__ == "__main__":
     import logging
+
     from news_crawler.core.bootstrap import bootstrap
 
     logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
     logger = logging.getLogger(__name__)
-    
+
     bootstrap()
     logger.info("Testing database connection...")
     try:
@@ -141,7 +142,7 @@ if __name__ == "__main__":
             with engine.connect() as conn:
                 mode = conn.exec_driver_sql("PRAGMA journal_mode").scalar()
                 logger.info(f"SQLite Journal Mode: {mode} (Expected: wal)")
-                
+
     except Exception as e:
         logger.error(f"Connection failed: {e}")
         sys.exit(1)
