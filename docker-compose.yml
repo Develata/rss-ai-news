@@ -45,6 +45,10 @@ services:
     environment:
       TZ: Asia/Shanghai
       NO_PROXY: "127.0.0.1,localhost"
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: "1"
+      # 指定外部配置目录路径
+      CONFIG_DIR: /app/config/categories
     
     # 健康检查
     healthcheck:
@@ -53,6 +57,13 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    
+    # 日志配置
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 # 网络配置
 networks:
@@ -61,17 +72,3 @@ networks:
     ipam:
       config:
         - subnet: 172.20.0.0/16
-      PYTHONPATH: /app
-      PYTHONUNBUFFERED: "1"
-      # 指定外部配置目录路径
-      CONFIG_DIR: /app/config/categories
-
-    # 4. 网络模式
-    network_mode: "host"
-    
-    # 5. 日志配置
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"

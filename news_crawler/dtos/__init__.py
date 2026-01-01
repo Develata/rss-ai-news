@@ -1,17 +1,8 @@
 """DTOs."""
 
-from news_crawler.dtos.dto import (
-    RSSItem,
-    CategoryConfig,
-    ReportConfig,
-    AIAnalysisResult,
-    PublishResult,
-)
+from news_crawler.dtos.dto import ParsedItem, PseudoEntry
 
 __all__ = [
-    "RSSItem",
-    "CategoryConfig",
-    "ReportConfig",
-    "AIAnalysisResult",
-    "PublishResult",
+    "ParsedItem",
+    "PseudoEntry",
 ]
