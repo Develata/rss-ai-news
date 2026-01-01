@@ -1,16 +1,20 @@
 services:
   news_crawler:
-    # 1. 构建配置
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        APT_MIRROR: ${APT_MIRROR:-mirrors.tuna.tsinghua.edu.cn}
-        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
-        PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-pypi.tuna.tsinghua.edu.cn}
-      network: host
+    # 使用预构建镜像（推荐）
+    image: ghcr.io/develata/rss-ai-news:${IMAGE_TAG:-latest}
+    
+    # 如需本地构建，取消注释以下内容并注释上面的 image 行
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     APT_MIRROR: ${APT_MIRROR:-mirrors.tuna.tsinghua.edu.cn}
+    #     PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}
+    #     PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-pypi.tuna.tsinghua.edu.cn}
+    #   network: host
       
     container_name: news_crawler
+    pull_policy: always
     restart: unless-stopped
     
     # 网络配置（隔离安全）

@@ -48,7 +48,6 @@
 ```bash
 git clone https://github.com/Develata/rss-ai-news.git
 cd rss-ai-news
-
 ```
 
 ### 2. 配置环境变量
@@ -57,7 +56,6 @@ cd rss-ai-news
 
 ```bash
 cp .env.example .env
-
 ```
 
 使用文本编辑器修改 `.env` 文件。**最简配置**仅需填写以下几项：
@@ -66,6 +64,8 @@ cp .env.example .env
 * `AI_URL`: LLM 的 Base URL (例如阿里云 Qwen、OpenAI 等)。
 * `GITHUB_TOKEN` & `REPO_NAME`: 用于发布日报的 GitHub 仓库信息。
 * `DB_BACKEND`: 设为 `sqlite` 即可免去配置 PostgreSQL。
+
+> **💡 镜像说明**: 项目已自动构建并发布到 [GitHub Container Registry](https://github.com/Develata/rss-ai-news/pkgs/container/rss-ai-news)，默认使用 `latest` 标签。如需指定版本，修改 `.env.docker` 中的 `IMAGE_TAG`。
 
 ### 3. 自定义配置（可选）
 
@@ -83,8 +83,15 @@ docker compose restart
 ### 4. 启动服务
 
 ```bash
+# 拉取最新镜像并启动（推荐）
+docker compose pull
 docker compose up -d
+
+# 或使用一行命令
+docker compose up -d --pull always
 ```
+
+> **提示**: 如需本地构建而非使用预构建镜像，编辑 `docker-compose.yml`，取消注释 `build:` 部分并注释 `image:` 行。
 
 ### 5. 查看运行状态
 
