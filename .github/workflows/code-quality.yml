@@ -9,6 +9,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       
@@ -18,6 +19,7 @@ jobs:
           python-version: '3.10'
           
       - name: Install dependencies
+        timeout-minutes: 5
         run: |
           pip install black ruff mypy
           pip install -e ".[test]"
