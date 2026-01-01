@@ -165,7 +165,7 @@ def load_category_configs() -> list[CategoryConfig]:
     for path in sorted(root.glob("*.toml")):
         if path.name.startswith("_"):
             continue
-            
+
         try:
             cfg = _load_one(path)
             if cfg.key in seen:

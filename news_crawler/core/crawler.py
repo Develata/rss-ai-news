@@ -14,7 +14,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 def _create_session(proxy_url: str = None) -> requests.Session:
     """创建带连接池的 requests Session，复用 TCP 连接"""
     session = requests.Session()
-    
+
     # 配置重试策略
     retry_strategy = Retry(
         total=3,
@@ -28,17 +28,17 @@ def _create_session(proxy_url: str = None) -> requests.Session:
     )
     session.mount("http://", adapter)
     session.mount("https://", adapter)
-    
+
     if proxy_url:
         session.proxies = {"http": proxy_url, "https": proxy_url}
-    
+
     return session
 
 
 class SpiderCore:
     # 类级别的 Session 缓存（按代理URL区分）
     _sessions: dict = {}
-    
+
     def __init__(self):
         settings = get_settings()
         self.proxy_url = settings.network.azure_proxy
@@ -47,7 +47,7 @@ class SpiderCore:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
-    
+
     def _get_session(self, use_proxy: bool) -> requests.Session:
         """获取或创建复用的 Session"""
         cache_key = self.proxy_url if use_proxy else "no_proxy"

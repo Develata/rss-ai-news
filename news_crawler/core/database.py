@@ -6,8 +6,17 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlparse
 
-# 🔥 引入 event 用于监听数据库连接事件
-from sqlalchemy import Boolean, Column, DateTime, Index, Integer, String, Text, create_engine, event
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Index,
+    Integer,
+    String,
+    Text,
+    create_engine,
+    event,
+)
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from news_crawler.core.settings import get_settings
@@ -36,7 +45,7 @@ class NewsArticle(Base):
     # 复合索引优化查询
     __table_args__ = (
         # AI处理查询：查找未处理的文章
-        Index('ix_raw_news_ai_pending', 'is_ai_processed', postgresql_where=is_ai_processed == False),
+        Index('ix_raw_news_ai_pending', 'is_ai_processed', postgresql_where=is_ai_processed.is_(False)),
         # 报表查询：按分类+时间+分数查询
         Index('ix_raw_news_report', 'category', 'created_at', 'importance_score'),
     )
@@ -126,7 +135,7 @@ if __name__ == "__main__":
         engine = get_engine()
         Base.metadata.create_all(engine)
         logger.info("✓ Database connection successful, tables synced!")
-        
+
         # 简单检查 WAL 是否生效 (仅针对 SQLite)
         if str(engine.url).startswith("sqlite"):
             with engine.connect() as conn:
