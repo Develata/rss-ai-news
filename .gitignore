@@ -80,3 +80,6 @@ docker-compose.override.yml
 *.tar
 *.tar.gz
 *.zip
+
+# My own testing env-files
+nettech_hardcore.toml
