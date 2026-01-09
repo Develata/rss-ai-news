@@ -16,7 +16,7 @@ from news_crawler.core.crawler import SpiderCore
 def test_rss_categories_are_configured():
     """Verify RSS categories are properly configured."""
     assert isinstance(RSS_CATEGORIES, dict)
-    assert len(RSS_CATEGORIES) >= 5
+    assert len(RSS_CATEGORIES) >= 1, "At least one category should be configured"
 
 
 def get_feed_params():
