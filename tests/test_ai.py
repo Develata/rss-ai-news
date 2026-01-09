@@ -133,7 +133,5 @@ class TestCategoryStrategies:
         # Test that all prompts contain required output format markers
         for strategy in CATEGORY_STRATEGIES.values():
             assert "|TAGS|" in strategy.prompt, f"{strategy.name} prompt missing |TAGS| marker"
-            assert (
-                "|SCORE|" in strategy.prompt
-            ), f"{strategy.name} prompt missing |SCORE| marker"
+            assert "|SCORE|" in strategy.prompt, f"{strategy.name} prompt missing |SCORE| marker"
             assert "PASS" in strategy.prompt, f"{strategy.name} prompt missing PASS instruction"
