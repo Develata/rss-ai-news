@@ -94,7 +94,7 @@ class TestCategoryStrategies:
         """Verify all configured categories have corresponding strategies."""
         # Test that all loaded categories have strategies
         assert len(CATEGORY_STRATEGIES) >= 1, "At least one category should be configured"
-        
+
         for cat_name in CATEGORY_STRATEGIES.keys():
             strategy = get_strategy(cat_name)
             assert strategy is not None
@@ -124,16 +124,16 @@ class TestCategoryStrategies:
         """Verify categories can have different token limits."""
         # Test that max_input_chars is within reasonable range for all categories
         for strategy in CATEGORY_STRATEGIES.values():
-            assert 1000 <= strategy.max_input_chars <= 3000, \
-                f"{strategy.name} has invalid max_input_chars: {strategy.max_input_chars}"
+            assert (
+                1000 <= strategy.max_input_chars <= 3000
+            ), f"{strategy.name} has invalid max_input_chars: {strategy.max_input_chars}"
 
     def test_prompts_are_category_specific(self):
         """Verify each category has a meaningful prompt."""
         # Test that all prompts contain required output format markers
         for strategy in CATEGORY_STRATEGIES.values():
-            assert "|TAGS|" in strategy.prompt, \
-                f"{strategy.name} prompt missing |TAGS| marker"
-            assert "|SCORE|" in strategy.prompt, \
-                f"{strategy.name} prompt missing |SCORE| marker"
-            assert "PASS" in strategy.prompt, \
-                f"{strategy.name} prompt missing PASS instruction"
+            assert "|TAGS|" in strategy.prompt, f"{strategy.name} prompt missing |TAGS| marker"
+            assert (
+                "|SCORE|" in strategy.prompt
+            ), f"{strategy.name} prompt missing |SCORE| marker"
+            assert "PASS" in strategy.prompt, f"{strategy.name} prompt missing PASS instruction"
